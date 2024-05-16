@@ -23,7 +23,7 @@ namespace NWaves.Features
         /// <param name="endPos">Index of the last sample in array for processing</param>
         /// <param name="low">Lower frequency of expected pitch range</param>
         /// <param name="high">Upper frequency of expected pitch range</param>
-        public static float FromAutoCorrelation(float[] samples,
+        public static float FromAutoCorrelation(Memory<float> samples,
                                                 int samplingRate,
                                                 int startPos = 0,
                                                 int endPos = -1,
@@ -44,7 +44,7 @@ namespace NWaves.Features
 
             var cc = new float[fftSize];
 
-            new Convolver(fftSize).CrossCorrelate(block, block.FastCopy(), cc);
+            new Convolver(fftSize).CrossCorrelate(block.Span, block.Span.FastCopy(), cc);
 
             var start = pitch1 + block.Length - 1;
             var end = Math.Min(start + pitch2, cc.Length);
@@ -90,7 +90,7 @@ namespace NWaves.Features
         /// <param name="endPos">Index of the last sample in array for processing</param>
         /// <param name="lowSchmittThreshold">Lower threshold in Schmitt trigger</param>
         /// <param name="highSchmittThreshold">Upper threshold in Schmitt trigger</param>
-        public static float FromZeroCrossingsSchmitt(float[] samples,
+        public static float FromZeroCrossingsSchmitt(Memory<float> samples,
                                                      int samplingRate,
                                                      int startPos = 0,
                                                      int endPos = -1,
@@ -107,8 +107,8 @@ namespace NWaves.Features
 
             for (var i = startPos; i < endPos; i++)
             {
-                if (samples[i] > 0 && samples[i] > maxPositive) maxPositive = samples[i];
-                if (samples[i] < 0 && samples[i] < minNegative) minNegative = samples[i];
+                if (samples.Span[i] > 0 && samples.Span[i] > maxPositive) maxPositive = samples.Span[i];
+                if (samples.Span[i] < 0 && samples.Span[i] < minNegative) minNegative = samples.Span[i];
             }
 
             var highThreshold = highSchmittThreshold < 1e9f ? highSchmittThreshold : 0.75f * maxPositive;
@@ -125,13 +125,13 @@ namespace NWaves.Features
             var j = startPos;
             for (; j < endPos - 1; j++)
             {
-                if (samples[j] < highThreshold && samples[j + 1] >= highThreshold && !isCurrentHigh)
+                if (samples.Span[j] < highThreshold && samples.Span[j + 1] >= highThreshold && !isCurrentHigh)
                 {
                     isCurrentHigh = true;
                     firstCrossed = j;
                     break;
                 }
-                if (samples[j] > lowThreshold && samples[j + 1] <= lowThreshold && isCurrentHigh)
+                if (samples.Span[j] > lowThreshold && samples.Span[j + 1] <= lowThreshold && isCurrentHigh)
                 {
                     isCurrentHigh = false;
                     firstCrossed = j;
@@ -141,13 +141,13 @@ namespace NWaves.Features
 
             for (; j < endPos - 1; j++)
             {
-                if (samples[j] < highThreshold && samples[j + 1] >= highThreshold && !isCurrentHigh)
+                if (samples.Span[j] < highThreshold && samples.Span[j + 1] >= highThreshold && !isCurrentHigh)
                 {
                     zcr++;
                     isCurrentHigh = true;
                     lastCrossed = j;
                 }
-                if (samples[j] > lowThreshold && samples[j + 1] <= lowThreshold && isCurrentHigh)
+                if (samples.Span[j] > lowThreshold && samples.Span[j + 1] <= lowThreshold && isCurrentHigh)
                 {
                     zcr++;
                     isCurrentHigh = false;

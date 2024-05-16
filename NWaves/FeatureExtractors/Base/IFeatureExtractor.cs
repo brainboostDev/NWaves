@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NWaves.FeatureExtractors.Base
 {
@@ -17,7 +18,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <para>Returns the list of computed feature vectors or empty list, if the number of samples is less than the size of analysis frame.</para>
         /// </summary>
         /// <param name="samples">Array of samples</param>
-        List<float[]> ComputeFrom(float[] samples);
+        List<float[]> ComputeFrom(Memory<float> samples);
 
         /// <summary>
         /// <para>Computes feature vectors from <paramref name="samples"/>.</para>
@@ -26,7 +27,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="samples">Array of samples</param>
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
-        List<float[]> ComputeFrom(float[] samples, int startSample, int endSample);
+        List<float[]> ComputeFrom(Memory<float> samples, int startSample, int endSample);
 
         /// <summary>
         /// <para>Computes feature vectors from <paramref name="samples"/> and stores them in <paramref name="vectors"/>.</para>
@@ -34,7 +35,7 @@ namespace NWaves.FeatureExtractors.Base
         /// </summary>
         /// <param name="samples">Array of samples</param>
         /// <param name="vectors">Pre-allocated sequence for storing the resulting feature vectors</param>
-        int ComputeFrom(float[] samples, IList<float[]> vectors);
+        int ComputeFrom(Memory<float> samples, IList<float[]> vectors);
 
         /// <summary>
         /// <para>Computes feature vectors from <paramref name="samples"/> and stores them in <paramref name="vectors"/>.</para>
@@ -44,7 +45,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
         /// <param name="vectors">Pre-allocated sequence for storing the resulting feature vectors</param>
-        int ComputeFrom(float[] samples, int startSample, int endSample, IList<float[]> vectors);
+        int ComputeFrom(Memory<float> samples, int startSample, int endSample, IList<float[]> vectors);
 
         /// <summary>
         /// Resets feature extractor.

@@ -39,10 +39,10 @@ namespace NWaves.Effects.Stereo
         /// <param name="count">Number of samples to process</param>
         /// <param name="inputPos">Input starting index</param>
         /// <param name="outputPos">Output starting index</param>
-        public virtual void Process(float[] inputLeft,
-                                    float[] inputRight,
-                                    float[] outputLeft,
-                                    float[] outputRight,
+        public virtual void Process(Memory<float> inputLeft,
+                                    Memory<float> inputRight,
+                                    Memory<float> outputLeft,
+                                    Memory<float> outputRight,
                                     int count = 0,
                                     int inputPos = 0,
                                     int outputPos = 0)
@@ -72,9 +72,9 @@ namespace NWaves.Effects.Stereo
         /// <param name="count">Number of samples to process</param>
         /// <param name="inputPos">Input starting index</param>
         /// <param name="outputPos">Output starting index</param>
-        public virtual void Process(float[] input,
-                                    float[] outputLeft,
-                                    float[] outputRight,
+        public virtual void Process(Memory<float> input,
+                                    Memory<float> outputLeft,
+                                    Memory<float> outputRight,
                                     int count = 0,
                                     int inputPos = 0,
                                     int outputPos = 0)
@@ -105,7 +105,7 @@ namespace NWaves.Effects.Stereo
             var left = new float[signal.Length];
             var right = new float[signal.Length];
             
-            Process(signal.Samples, left, right);
+            Process(signal.Samples.Span, left, right);
 
             return (new DiscreteSignal(sr, left), new DiscreteSignal(sr, right));
         }
@@ -124,7 +124,7 @@ namespace NWaves.Effects.Stereo
             var left = new float[leftSignal.Length];
             var right = new float[rightSignal.Length];
 
-            Process(leftSignal.Samples, rightSignal.Samples, left, right);
+            Process(leftSignal.Samples.Span, rightSignal.Samples.Span, left, right);
 
             return (new DiscreteSignal(srl, left), new DiscreteSignal(srr, right));
         }

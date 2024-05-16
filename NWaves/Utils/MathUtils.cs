@@ -88,7 +88,7 @@ namespace NWaves.Utils
         /// <summary>
         /// Does linear interpolation (as numpy.interp).
         /// </summary>
-        public static void InterpolateLinear(float[] x, float[] y, float[] arg, float[] interp)
+        public static void InterpolateLinear(Span<float> x, Span<float> y, Span<float> arg, Span<float> interp)
         {
             var left = 0;
             var right = 1;
@@ -215,7 +215,7 @@ namespace NWaves.Utils
                 a[end] = a[pivot];
                 a[pivot] = tmp;
                 // ========================================
-                
+
                 if (pivot == n)
                 {
                     return a[pivot];
@@ -400,9 +400,71 @@ namespace NWaves.Utils
             Array.Copy(output, 0, q, 0, separator);
             Array.Copy(output, separator, r, 0, output.Length - separator);
 
-            return new [] { q, r };
+            return new[] { q, r };
         }
 
         #endregion
+    }
+
+
+    public static class SpanExtensions
+    {
+
+        /// <summary>
+        /// Makes fast copy of the entire span.
+        /// </summary>
+        /// <param name="source">Source span</param>
+        /// <param name="sourceOffset">Offset in source span</param>
+        /// <param name="destinationOffset">Offset in destination array</param>
+        public static float[] FastCopy(this Span<float> source, int sourceOffset = 0, int destinationOffset = 0)
+        {
+            int size = source.Length - sourceOffset;
+            int totalSize = size + destinationOffset;
+            var destination = new float[totalSize];
+
+            var sourceSlice = source.Slice(sourceOffset, size);
+            var destinationSlice = destination.AsSpan().Slice(destinationOffset, size);
+
+            sourceSlice.CopyTo(destinationSlice);
+
+            return destination;
+        }
+
+        public static void FastCopyTo(this Span<float> source, Span<float> destination, int length, int sourceOffset = 0, int destinationOffset = 0)
+        {
+            // Ensure the length is within bounds of both spans
+            if (length > source.Length - sourceOffset || length > destination.Length - destinationOffset)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length), "Length exceeds the bounds of the source or destination span.");
+            }
+
+            // Slice the source and destination spans to the specified offsets
+            var sourceSlice = source.Slice(sourceOffset, length);
+            var destinationSlice = destination.Slice(destinationOffset, length);
+
+            // Copy the data from the source slice to the destination slice
+            sourceSlice.CopyTo(destinationSlice);
+        }
+
+        private const int _32Bits = 4;  // Size of a float in bytes
+
+        /// <summary>
+        /// Makes fast copy of span fragment starting at specified offset.
+        /// </summary>
+        /// <param name="source">Source span</param>
+        /// <param name="size">Number of elements to copy</param>
+        /// <param name="sourceOffset">Offset in source span</param>
+        /// <param name="destinationOffset">Offset in destination array</param>
+        public static float[] FastCopyFragment(this Span<float> source, int size, int sourceOffset = 0, int destinationOffset = 0)
+        {
+            var totalSize = size + destinationOffset;
+            var destination = new float[totalSize];
+            var sourceSlice = source.Slice(sourceOffset, size);
+            var destinationSlice = destination.AsSpan().Slice(destinationOffset, size);
+
+            sourceSlice.CopyTo(destinationSlice);
+
+            return destination;
+        }
     }
 }

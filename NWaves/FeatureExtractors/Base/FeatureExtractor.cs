@@ -144,7 +144,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample (exclusive) in array for processing</param>
         /// <param name="vectors">Pre-allocated sequence for storing the resulting feature vectors</param>
-        public virtual int ComputeFrom(float[] samples, int startSample, int endSample, IList<float[]> vectors)
+        public virtual int ComputeFrom(Memory<float> samples, int startSample, int endSample, IList<float[]> vectors)
         {
             Guard.AgainstInvalidRange(startSample, endSample, "starting pos", "ending pos");
 
@@ -173,6 +173,7 @@ namespace NWaves.FeatureExtractors.Base
                 // prepare new block for processing ======================================================
 
                 samples.FastCopyTo(block, frameSize, sample);  // copy FrameSize samples to 'block' buffer
+                
 
                 for (var k = frameSize; k < block.Length; block[k++] = 0) { }    // pad zeros to blockSize
 
@@ -212,7 +213,7 @@ namespace NWaves.FeatureExtractors.Base
         /// </summary>
         /// <param name="samples">Array of samples</param>
         /// <param name="vectors">Pre-allocated sequence for storing the resulting feature vectors</param>
-        public virtual int ComputeFrom(float[] samples, IList<float[]> vectors)
+        public virtual int ComputeFrom(Memory<float> samples, IList<float[]> vectors)
         {
             return ComputeFrom(samples, 0, samples.Length, vectors);
         }
@@ -224,7 +225,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="samples">Array of samples</param>
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample (exclusive) in array for processing</param>
-        public virtual List<float[]> ComputeFrom(float[] samples, int startSample, int endSample)
+        public virtual List<float[]> ComputeFrom(Memory<float> samples, int startSample, int endSample)
         {
             Guard.AgainstInvalidRange(startSample, endSample, "starting pos", "ending pos");
 
@@ -266,14 +267,14 @@ namespace NWaves.FeatureExtractors.Base
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one feature vector) computed in the block</param>
-        public abstract void ProcessFrame(float[] block, float[] features);
+        public abstract void ProcessFrame(Memory<float> block, float[] features);
 
         /// <summary>
         /// <para>Computes feature vectors from <paramref name="samples"/>.</para>
         /// <para>Returns the list of computed feature vectors or empty list, if the number of samples is less than the size of analysis frame.</para>
         /// </summary>
         /// <param name="samples">Array of samples</param>
-        public List<float[]> ComputeFrom(float[] samples)
+        public List<float[]> ComputeFrom(Memory<float> samples)
         {
             return ComputeFrom(samples, 0, samples.Length);
         }
@@ -287,7 +288,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="endSample">Index of the last sample (exclusive) in signal for processing</param>
         public List<float[]> ComputeFrom(DiscreteSignal signal, int startSample, int endSample)
         {
-            return ComputeFrom(signal.Samples, startSample, endSample);
+            return ComputeFrom(signal.Samples.Span, startSample, endSample);
         }
 
         /// <summary>
@@ -297,7 +298,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="signal">Discrete signal</param>
         public List<float[]> ComputeFrom(DiscreteSignal signal)
         {
-            return ComputeFrom(signal.Samples, 0, signal.Length);
+            return ComputeFrom(signal.Samples.Span, 0, signal.Length);
         }
 
         /// <summary>
@@ -328,7 +329,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
         /// <param name="parallelThreads">Number of threads (all available processors, by default)</param>
-        public virtual List<float[]>[] ParallelChunksComputeFrom(float[] samples, int startSample, int endSample, int parallelThreads = 0)
+        public virtual List<float[]>[] ParallelChunksComputeFrom(Memory<float> samples, int startSample, int endSample, int parallelThreads = 0)
         {
             if (!IsParallelizable())
             {
@@ -370,7 +371,7 @@ namespace NWaves.FeatureExtractors.Base
             // =========================== actual parallel computing ===========================
 
             var featureVectors = new List<float[]>[threadCount];
-
+            
             Parallel.For(0, threadCount, i =>
             {
                 featureVectors[i] = extractors[i].ComputeFrom(samples, startPositions[i], endPositions[i]);
@@ -387,7 +388,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
         /// <param name="parallelThreads">Number of threads (all available processors, by default)</param>
-        public virtual List<float[]> ParallelComputeFrom(float[] samples, int startSample, int endSample, int parallelThreads = 0)
+        public virtual List<float[]> ParallelComputeFrom(Memory<float> samples, int startSample, int endSample, int parallelThreads = 0)
         {
             var chunks = ParallelChunksComputeFrom(samples, startSample, endSample, parallelThreads);
 
@@ -407,7 +408,7 @@ namespace NWaves.FeatureExtractors.Base
         /// </summary>
         /// <param name="samples">Array of samples</param>
         /// <param name="parallelThreads">Number of threads (all available processors, by default)</param>
-        public virtual List<float[]> ParallelComputeFrom(float[] samples, int parallelThreads = 0)
+        public virtual List<float[]> ParallelComputeFrom(Memory<float> samples, int parallelThreads = 0)
         {
             return ParallelComputeFrom(samples, 0, samples.Length, parallelThreads);
         }
@@ -422,7 +423,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="parallelThreads">Number of threads (all available processors, by default)</param>
         public List<float[]> ParallelComputeFrom(DiscreteSignal signal, int startSample, int endSample, int parallelThreads = 0)
         {
-            return ParallelComputeFrom(signal.Samples, startSample, endSample, parallelThreads);
+            return ParallelComputeFrom(signal.Samples.Span, startSample, endSample, parallelThreads);
         }
 
         /// <summary>
@@ -433,7 +434,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="parallelThreads">Number of threads (all available processors, by default)</param>
         public List<float[]> ParallelComputeFrom(DiscreteSignal signal, int parallelThreads = 0)
         {
-            return ParallelComputeFrom(signal.Samples, 0, signal.Length, parallelThreads);
+            return ParallelComputeFrom(signal.Samples.Span, 0, signal.Length, parallelThreads);
         }
 
         #endregion

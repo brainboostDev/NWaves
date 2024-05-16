@@ -20,7 +20,7 @@ namespace NWaves.Signals
         /// <summary>
         /// Gets real-valued array of samples.
         /// </summary>
-        public float[] Samples { get; }
+        public Memory<float> Samples { get; }
 
         /// <summary>
         /// Gets the length of the signal.
@@ -40,22 +40,12 @@ namespace NWaves.Signals
         /// <param name="samplingRate">Sampling rate</param>
         /// <param name="samples">Array of samples</param>
         /// <param name="allocateNew">Set to true if new memory should be allocated for signal data</param>
-        public DiscreteSignal(int samplingRate, float[] samples, bool allocateNew = false)
+        public DiscreteSignal(int samplingRate, Memory<float> samples, bool allocateNew = false)
         {
             Guard.AgainstNonPositive(samplingRate, "Sampling rate");
 
             SamplingRate = samplingRate;
-            Samples = allocateNew ? samples.FastCopy() : samples;
-        }
-
-        /// <summary>
-        /// Constructs signal from collection of <paramref name="samples"/> sampled at <paramref name="samplingRate"/>.
-        /// </summary>
-        /// <param name="samplingRate">Sampling rate</param>
-        /// <param name="samples">Collection of samples</param>
-        public DiscreteSignal(int samplingRate, IEnumerable<float> samples)
-            : this(samplingRate, samples?.ToArray())
-        {
+            Samples = allocateNew ? samples.ToArray() : samples;
         }
 
         /// <summary>
@@ -139,8 +129,8 @@ namespace NWaves.Signals
         /// <param name="index">Sample index</param>
         public float this[int index]
         {
-            get => Samples[index];
-            set => Samples[index] = value;
+            get => Samples.Span[index];
+            set => Samples.Span[index] = value;
         }
 
         /// <summary>
@@ -160,7 +150,7 @@ namespace NWaves.Signals
                 // Implementaion is LINQ-less, since Skip() would be less efficient:
                 //     return new DiscreteSignal(SamplingRate, Samples.Skip(startPos).Take(endPos - startPos));
 
-                return new DiscreteSignal(SamplingRate, Samples.FastCopyFragment(endPos - startPos, startPos));
+                return new DiscreteSignal(SamplingRate, Samples.Slice(startPos, endPos - startPos));
             }
         }
 
@@ -183,7 +173,12 @@ namespace NWaves.Signals
         /// <param name="s">Signal</param>
         public static DiscreteSignal operator -(DiscreteSignal s)
         {
-            return new DiscreteSignal(s.SamplingRate, s.Samples.Select(x => -x));
+            var samples = new float[s.Samples.Length];
+            for (var i = 0; i < samples.Length; i++)
+            {
+                samples[i] = -s.Samples.Span[i];
+            }
+            return new DiscreteSignal(s.SamplingRate, samples);
         }
 
         /// <summary>
@@ -204,7 +199,14 @@ namespace NWaves.Signals
         /// <param name="constant">Constant to add to each sample</param>
         public static DiscreteSignal operator +(DiscreteSignal s, float constant)
         {
-            return new DiscreteSignal(s.SamplingRate, s.Samples.Select(x => x + constant));
+            var samples = new float[s.Samples.Length];
+
+            for (var i = 0; i < samples.Length; i++)
+            {
+                samples[i] = s.Samples.Span[i] + constant;
+            }
+
+            return new DiscreteSignal(s.SamplingRate, samples);
         }
 
         /// <summary>
@@ -214,7 +216,14 @@ namespace NWaves.Signals
         /// <param name="constant">Constant to subtract from each sample</param>
         public static DiscreteSignal operator -(DiscreteSignal s, float constant)
         {
-            return new DiscreteSignal(s.SamplingRate, s.Samples.Select(x => x - constant));
+            var samples = new float[s.Samples.Length];
+            
+            for (var i = 0; i < samples.Length; i++)
+            {
+                samples[i] = s.Samples.Span[i] - constant;
+            }
+
+            return new DiscreteSignal(s.SamplingRate, samples);
         }
 
         /// <summary>
@@ -243,7 +252,7 @@ namespace NWaves.Signals
             var total = 0.0f;
             for (var i = startPos; i < endPos; i++)
             {
-                total += Samples[i] * Samples[i];
+                total += Samples.Span[i] * Samples.Span[i];
             }
 
             return total / (endPos - startPos);
@@ -278,12 +287,12 @@ namespace NWaves.Signals
         {
             const float disbalance = 1e-4f;
 
-            var prevSample = Samples[startPos] + disbalance;
+            var prevSample = Samples.Span[startPos] + disbalance;
 
             var rate = 0;
             for (var i = startPos + 1; i < endPos; i++)
             {
-                var sample = Samples[i] + disbalance;
+                var sample = Samples.Span[i] + disbalance;
 
                 if ((sample >= 0) != (prevSample >= 0))
                 {
@@ -319,11 +328,11 @@ namespace NWaves.Signals
 
             var bins = new int[binCount+1];
 
-            var min = Samples[0];
-            var max = Samples[0];
+            var min = Samples.Span[0];
+            var max = Samples.Span[0];
             for (var i = startPos; i < endPos; i++)
             {
-                var sample = Math.Abs(Samples[i]);
+                var sample = Math.Abs(Samples.Span[i]);
 
                 if (sample < min)
                 {
@@ -344,7 +353,7 @@ namespace NWaves.Signals
 
             for (var i = startPos; i < endPos; i++)
             {
-                bins[(int)((Math.Abs(Samples[i]) - min) / binLength)]++;
+                bins[(int)((Math.Abs(Samples.Span[i]) - min) / binLength)]++;
             }
 
             var entropy = 0.0;

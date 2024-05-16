@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NWaves.FeatureExtractors.Base
 {
@@ -13,7 +14,7 @@ namespace NWaves.FeatureExtractors.Base
         /// </summary>
         /// <param name="samples">Array of samples</param>
         /// <param name="parallelThreads">Number of threads</param>
-        List<float[]> ParallelComputeFrom(float[] samples, int parallelThreads);
+        List<float[]> ParallelComputeFrom(Memory<float> samples, int parallelThreads);
 
         /// <summary>
         /// <para>Computes parallelly the feature vectors from <paramref name="samples"/>.</para>
@@ -23,6 +24,6 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
         /// <param name="parallelThreads">Number of threads</param>
-        List<float[]> ParallelComputeFrom(float[] samples, int startSample, int endSample, int parallelThreads);
+        List<float[]> ParallelComputeFrom(Memory<float> samples, int startSample, int endSample, int parallelThreads);
     }
 }

@@ -99,7 +99,7 @@ namespace NWaves.FeatureExtractors.Base
         /// </summary>
         /// <param name="data">Block of data</param>
         /// <param name="featureVectors">Pre-allocated sequence for storing the resulting feature vectors</param>
-        public int ComputeFrom(float[] data, IList<float[]> featureVectors)
+        public int ComputeFrom(Memory<float> data, IList<float[]> featureVectors)
         {
             if (_ignoreLastSamples)
             {
@@ -128,7 +128,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <para>Returns the list of computed feature vectors or empty list, if the number of samples is less than the size of analysis frame.</para>
         /// </summary>
         /// <param name="data">Block of data</param>
-        public List<float[]> ComputeFrom(float[] data)
+        public List<float[]> ComputeFrom(Memory<float> data)
         {
             var totalSize = data.Length + _skippedCount;
             var vectorCount = totalSize < Extractor.FrameSize ? 0 : (totalSize - Extractor.FrameSize) / Extractor.HopSize + 1;
@@ -167,10 +167,10 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
         /// <param name="featureVectors">Pre-allocated sequence for storing the resulting feature vectors</param>
-        public int ComputeFrom(float[] data, int startSample, int endSample, IList<float[]> featureVectors)
+        public int ComputeFrom(Memory<float> data, int startSample, int endSample, IList<float[]> featureVectors)
         {
             Guard.AgainstInvalidRange(startSample, endSample, "starting pos", "ending pos");
-            return ComputeFrom(data.FastCopyFragment(endSample - startSample + 1, startSample), featureVectors);
+            return ComputeFrom(data.Span.FastCopyFragment(endSample - startSample + 1, startSample), featureVectors);
         }
 
         /// <summary>
@@ -180,10 +180,10 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="data">Block of data</param>
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
-        public List<float[]> ComputeFrom(float[] data, int startSample, int endSample)
+        public List<float[]> ComputeFrom(Memory<float> data, int startSample, int endSample)
         {
             Guard.AgainstInvalidRange(startSample, endSample, "starting pos", "ending pos");
-            return ComputeFrom(data.FastCopyFragment(endSample - startSample + 1, startSample));
+            return ComputeFrom(data.Span.FastCopyFragment(endSample - startSample + 1, startSample));
         }
 
         /// <summary>

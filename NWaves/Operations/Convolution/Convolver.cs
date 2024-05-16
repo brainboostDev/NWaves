@@ -83,7 +83,7 @@ namespace NWaves.Operations.Convolution
         /// Input arrays must have size equal to the size of FFT. 
         /// FFT size MUST be set explicitly and properly in constructor!
         /// </summary>
-        public void Convolve(float[] input, float[] kernel, float[] output)
+        public void Convolve(Span<float> input, Span<float> kernel, Span<float> output)
         {
             Array.Clear(_real1, 0, _fftSize);
             Array.Clear(_real2, 0, _fftSize);
@@ -128,7 +128,7 @@ namespace NWaves.Operations.Convolution
         /// Input arrays must have size equal to the size of FFT. 
         /// FFT size MUST be set explicitly and properly in constructor!
         /// </summary>
-        public void CrossCorrelate(float[] input1, float[] input2, float[] output)
+        public void CrossCorrelate(Span<float> input1, Span<float> input2, Span<float> output)
         {
             // reverse second signal
 

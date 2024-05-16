@@ -78,7 +78,7 @@ namespace NWaves.Effects
 
             var resampled = new float[xresampled.Length];
 
-            MathUtils.InterpolateLinear(x, stretched.Samples, xresampled, resampled);
+            MathUtils.InterpolateLinear(x, stretched.Samples.Span, xresampled, resampled);
 
             for (var i = 0; i < resampled.Length; i++)
             {
