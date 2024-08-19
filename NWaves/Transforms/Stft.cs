@@ -66,7 +66,7 @@ namespace NWaves.Transforms
         /// Returns list of computed spectra (real and imaginary parts) in time.
         /// </summary>
         /// <param name="input">Input data</param>
-        public List<(float[], float[])> Direct(float[] input)
+        public List<(float[], float[])> Direct(Memory<float> input)
         {
             // pre-allocate memory:
 
@@ -87,9 +87,9 @@ namespace NWaves.Transforms
 
             for (var i = 0; i < len; pos += _hopSize, i++)
             {
-                input.FastCopyTo(windowedBuffer, _windowSize, pos);
+                input.Span.FastCopyTo(windowedBuffer, _windowSize, pos);
 
-                windowedBuffer.ApplyWindow(_windowSamples);
+                windowedBuffer.AsMemory().ApplyWindow(_windowSamples);
 
                 var (re, im) = stft[i];
 
@@ -101,8 +101,8 @@ namespace NWaves.Transforms
             stft.Add((new float[_fftSize], new float[_fftSize]));
 
             Array.Clear(windowedBuffer, 0, _fftSize);
-            input.FastCopyTo(windowedBuffer, input.Length - pos, pos);
-            windowedBuffer.ApplyWindow(_windowSamples);
+            input.Span.FastCopyTo(windowedBuffer, input.Length - pos, pos);
+            windowedBuffer.AsMemory().ApplyWindow(_windowSamples);
                         
             var (lre, lim) = stft.Last();
 
@@ -231,7 +231,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="normalize">Normalize each spectrum</param>
-        public List<float[]> Spectrogram(float[] input, bool normalize = true)
+        public List<float[]> Spectrogram(Memory<float> input, bool normalize = true)
         {
             // pre-allocate memory:
 
@@ -252,11 +252,11 @@ namespace NWaves.Transforms
 
             for (int i = 0; i < len; pos += _hopSize, i++)
             {
-                input.FastCopyTo(windowedBuffer, _windowSize, pos);
+                input.Span.FastCopyTo(windowedBuffer, _windowSize, pos);
 
                 if (_window != WindowType.Rectangular)
                 {
-                    windowedBuffer.ApplyWindow(_windowSamples);
+                    windowedBuffer.AsMemory().ApplyWindow(_windowSamples);
                 }
 
                 _fft.PowerSpectrum(windowedBuffer, spectrogram[i], normalize);
@@ -265,8 +265,8 @@ namespace NWaves.Transforms
             // last (incomplete) frame:
 
             Array.Clear(windowedBuffer, 0, _fftSize);
-            input.FastCopyTo(windowedBuffer, input.Length - pos, pos);
-            windowedBuffer.ApplyWindow(_windowSamples);
+            input.Span.FastCopyTo(windowedBuffer, input.Length - pos, pos);
+            windowedBuffer.AsMemory().ApplyWindow(_windowSamples);
 
             spectrogram.Add(new float[_fftSize / 2 + 1]);
 
@@ -291,7 +291,7 @@ namespace NWaves.Transforms
         /// This method is memory-efficient since it doesn't store all spectra in memory.
         /// </summary>
         /// <param name="input">Input data</param>
-        public float[] AveragePeriodogram(float[] input)
+        public float[] AveragePeriodogram(Memory<float> input)
         {
             var len = input.Length >= _windowSize ? (input.Length - _windowSize) / _hopSize + 1 : 0;
 
@@ -303,11 +303,11 @@ namespace NWaves.Transforms
 
             for (var i = 0; i < len; pos += _hopSize, i++)
             {
-                input.FastCopyTo(windowedBuffer, _windowSize, pos);
+                input.Span.FastCopyTo(windowedBuffer, _windowSize, pos);
 
                 if (_window != WindowType.Rectangular)
                 {
-                    windowedBuffer.ApplyWindow(_windowSamples);
+                    windowedBuffer.AsMemory().ApplyWindow(_windowSamples);
                 }
 
                 _fft.PowerSpectrum(windowedBuffer, spectrum, false);
@@ -321,8 +321,8 @@ namespace NWaves.Transforms
             // last (incomplete) frame:
 
             Array.Clear(windowedBuffer, 0, _fftSize);
-            input.FastCopyTo(windowedBuffer, input.Length - pos, pos);
-            windowedBuffer.ApplyWindow(_windowSamples);
+            input.Span.FastCopyTo(windowedBuffer, input.Length - pos, pos);
+            windowedBuffer.AsMemory().ApplyWindow(_windowSamples);
 
             _fft.PowerSpectrum(windowedBuffer, spectrum, false);
 
@@ -339,13 +339,13 @@ namespace NWaves.Transforms
         /// Computes spectrogram in the form of list of magnitudes and phases from <paramref name="input"/>.
         /// </summary>
         /// <param name="input">Input data</param>
-        public MagnitudePhaseList MagnitudePhaseSpectrogram(float[] input)
+        public MagnitudePhaseList MagnitudePhaseSpectrogram(Memory<float> input)
         {
             // pre-allocate memory:
 
             var len = input.Length >= _windowSize ? (input.Length - _windowSize) / _hopSize + 1 : 0;
 
-            var mag = new List<float[]>(len + 1);
+            var mag = new List<Memory<float>>(len + 1);
             var phase = new List<float[]>(len + 1);
 
             for (var i = 0; i < len; i++)
@@ -364,15 +364,15 @@ namespace NWaves.Transforms
 
             for (var i = 0; i < len; pos += _hopSize, i++)
             {
-                input.FastCopyTo(windowedBuffer, _windowSize, pos);
+                input.Span.FastCopyTo(windowedBuffer, _windowSize, pos);
 
-                windowedBuffer.ApplyWindow(_windowSamples);
+                windowedBuffer.AsMemory().ApplyWindow(_windowSamples);
 
                 _fft.Direct(windowedBuffer, re, im);
 
                 for (var j = 0; j <= _fftSize / 2; j++)
                 {
-                    mag[i][j] = (float)Math.Sqrt(re[j] * re[j] + im[j] * im[j]);
+                    mag[i].Span[j] = (float)Math.Sqrt(re[j] * re[j] + im[j] * im[j]);
                     phase[i][j] = (float)Math.Atan2(im[j], re[j]);
                 }
             }
@@ -380,8 +380,8 @@ namespace NWaves.Transforms
             // last (incomplete) frame:
 
             Array.Clear(windowedBuffer, 0, _fftSize);
-            input.FastCopyTo(windowedBuffer, input.Length - pos, pos);
-            windowedBuffer.ApplyWindow(_windowSamples);
+            input.Span.FastCopyTo(windowedBuffer, input.Length - pos, pos);
+            windowedBuffer.AsMemory().ApplyWindow(_windowSamples);
 
             mag.Add(new float[_fftSize / 2 + 1]);
             phase.Add(new float[_fftSize / 2 + 1]);
@@ -393,7 +393,7 @@ namespace NWaves.Transforms
 
             for (var j = 0; j <= _fftSize / 2; j++)
             {
-                m[j] = (float)Math.Sqrt(re[j] * re[j] + im[j] * im[j]);
+                m.Span[j] = (float)Math.Sqrt(re[j] * re[j] + im[j] * im[j]);
                 p[j] = (float)Math.Atan2(im[j], re[j]);
             }
 
@@ -447,8 +447,8 @@ namespace NWaves.Transforms
             {
                 for (var j = 0; j <= _fftSize / 2; j++)
                 {
-                    re[j] = (float)(mag[i][j] * Math.Cos(phase[i][j]));
-                    im[j] = (float)(mag[i][j] * Math.Sin(phase[i][j]));
+                    re[j] = (float)(mag[i].Span[j] * Math.Cos(phase[i][j]));
+                    im[j] = (float)(mag[i].Span[j] * Math.Sin(phase[i][j]));
                 }
 
                 _fft.Inverse(re, im, buf);
@@ -511,7 +511,7 @@ namespace NWaves.Transforms
         /// <summary>
         /// Gets or sets list of magnitudes.
         /// </summary>
-        public List<float[]> Magnitudes { get; set; }
+        public List<Memory<float>> Magnitudes { get; set; }
 
         /// <summary>
         /// Gets or sets list of phases.

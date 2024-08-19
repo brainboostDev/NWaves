@@ -78,9 +78,9 @@ namespace NWaves.Transforms
         /// <param name="input">Input array of samples</param>
         /// <param name="outRe">Output array of real parts</param>
         /// <param name="outIm">Output array of imaginary parts</param>
-        public void Direct(float[] input, float[] outRe, float[] outIm)
+        public void Direct(Memory<float> input, float[] outRe, float[] outIm)
         {
-            MathUtils.InterpolateLinear(_linScale, input, _expScale, outRe);
+            MathUtils.InterpolateLinear(_linScale, input.Span, _expScale, outRe);
 
             for (var i = 0; i < outRe.Length; i++)
             {
@@ -97,7 +97,7 @@ namespace NWaves.Transforms
         /// <param name="input">Input array of samples</param>
         /// <param name="outRe">Output array of real parts</param>
         /// <param name="outIm">Output array of imaginary parts</param>
-        public void DirectNorm(float[] input, float[] outRe, float[] outIm)
+        public void DirectNorm(Memory<float> input, float[] outRe, float[] outIm)
         {
             Direct(input, outRe, outIm);
 

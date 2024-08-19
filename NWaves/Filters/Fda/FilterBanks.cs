@@ -741,7 +741,7 @@ namespace NWaves.Filters.Fda
                 var kernel = chain.ApplyTo(unitImpulse);
                 kernel.Attenuate(gain);
 
-                erbFilterBank[i] = fft.PowerSpectrum(kernel, false).Samples;
+                erbFilterBank[i] = fft.PowerSpectrum(kernel, false).Samples.ToArray(); //TODO ~ using to array instead of using memory for now -> change to memory later
             }
 
             // normalize gain (by default)

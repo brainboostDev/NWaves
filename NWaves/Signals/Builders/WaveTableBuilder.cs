@@ -35,7 +35,7 @@ namespace NWaves.Signals.Builders
         /// Constructs <see cref="WaveTableBuilder"/> from <paramref name="samples"/>.
         /// </summary>
         /// <param name="samples">Wave table samples</param>
-        public WaveTableBuilder(float[] samples)
+        public WaveTableBuilder(Memory<float> samples)
         {
             _samples = samples;
 
@@ -66,13 +66,13 @@ namespace NWaves.Signals.Builders
 
                 _n += _stride;
 
-                return _samples[idx] + frac * (_samples[(idx + 1) % _samples.Length] - _samples[idx]);
+                return _samples.Span[idx] + frac * (_samples.Span[(idx + 1) % _samples.Length] - _samples.Span[idx]);
             }
             else
             {
                 _n += _stride;
 
-                return _samples[idx];
+                return _samples.Span[idx];
             }
         }
 

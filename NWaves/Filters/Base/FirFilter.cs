@@ -180,7 +180,7 @@ namespace NWaves.Filters.Base
         /// Processes all <paramref name="samples"/> in loop.
         /// </summary>
         /// <param name="samples">Samples</param>
-        public float[] ProcessAllSamples(float[] samples)
+        public float[] ProcessAllSamples(Memory<float> samples)
         {
             // The Process() code is inlined here in the loop for better performance
             // (especially for smaller kernels).
@@ -190,7 +190,7 @@ namespace NWaves.Filters.Base
             var k = 0;
             while (k < samples.Length)
             {
-                _delayLine[_delayLineOffset] = samples[k];
+                _delayLine[_delayLineOffset] = samples.Span[k];
 
                 var output = 0f;
 
@@ -232,7 +232,7 @@ namespace NWaves.Filters.Base
                 {
                     if (n >= k && n < input.Length + k)
                     {
-                        output[n] += _b[k] * input[n - k];
+                        output[n] += _b[k] * input.Span[n - k];
                     }
                 }
             }

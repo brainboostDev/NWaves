@@ -75,13 +75,13 @@ namespace NWaves.Utils
         /// <summary>
         /// Evaluate discrete difference of <paramref name="samples"/> (array of the 1st order derivatives).
         /// </summary>
-        public static void Diff(float[] samples, float[] diff)
+        public static void Diff(Memory<float> samples, float[] diff)
         {
-            diff[0] = samples[0];
+            diff[0] = samples.Span[0];
 
             for (var i = 1; i < samples.Length; i++)
             {
-                diff[i] = samples[i] - samples[i - 1];
+                diff[i] = samples.Span[i] - samples.Span[i - 1];
             }
         }
 

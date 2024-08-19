@@ -83,13 +83,13 @@ namespace NWaves.Operations.Convolution
         /// Input arrays must have size equal to the size of FFT. 
         /// FFT size MUST be set explicitly and properly in constructor!
         /// </summary>
-        public void Convolve(Span<float> input, Span<float> kernel, Span<float> output)
+        public void Convolve(Memory<float> input, Memory<float> kernel, Memory<float> output)
         {
             Array.Clear(_real1, 0, _fftSize);
             Array.Clear(_real2, 0, _fftSize);
 
-            input.FastCopyTo(_real1, input.Length);
-            kernel.FastCopyTo(_real2, kernel.Length);
+            input.Span.FastCopyTo(_real1, input.Length);
+            kernel.Span.FastCopyTo(_real2, kernel.Length);
 
             // 1) do FFT of both signals
 
@@ -116,7 +116,7 @@ namespace NWaves.Operations.Convolution
         /// </summary>
         public DiscreteSignal CrossCorrelate(DiscreteSignal signal1, DiscreteSignal signal2)
         {
-            var reversedKernel = new DiscreteSignal(signal2.SamplingRate, signal2.Samples.Reverse());
+            var reversedKernel = new DiscreteSignal(signal2.SamplingRate, signal2.Samples.Span.Reverse());
 
             return Convolve(signal1, reversedKernel);
         }
@@ -128,7 +128,7 @@ namespace NWaves.Operations.Convolution
         /// Input arrays must have size equal to the size of FFT. 
         /// FFT size MUST be set explicitly and properly in constructor!
         /// </summary>
-        public void CrossCorrelate(Span<float> input1, Span<float> input2, Span<float> output)
+        public void CrossCorrelate(Memory<float> input1, Memory<float> input2, Memory<float> output)
         {
             // reverse second signal
 
@@ -136,9 +136,9 @@ namespace NWaves.Operations.Convolution
 
             for (var i = 0; i < kernelLength / 2; i++)
             {
-                var tmp = input2[i];
-                input2[i] = input2[kernelLength - i];
-                input2[kernelLength - i] = tmp;
+                var tmp = input2.Span[i];
+                input2.Span[i] = input2.Span[kernelLength - i];
+                input2.Span[kernelLength - i] = tmp;
             }
 
             Convolve(input1, input2, output);

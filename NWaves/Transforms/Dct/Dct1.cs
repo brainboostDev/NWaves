@@ -47,22 +47,22 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output)
+        public void Direct(Memory<float> input, float[] output)
         {
             for (var k = 0; k < output.Length; k++)
             {
                 if ((k & 1) == 0)
                 {
-                    output[k] = input[0] + input[input.Length - 1];
+                    output[k] = input.Span[0] + input.Span[input.Length - 1];
                 }
                 else
                 {
-                    output[k] = input[0] - input[input.Length - 1];
+                    output[k] = input.Span[0] - input.Span[input.Length - 1];
                 }
 
                 for (var n = 1; n < input.Length - 1; n++)
                 {
-                    output[k] += input[n] * _dctMtx[k][n];
+                    output[k] += input.Span[n] * _dctMtx[k][n];
                 }
             }
         }
@@ -72,7 +72,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output)
+        public void DirectNorm(Memory<float> input, float[] output)
         {
             var sqrt2 = (float)Math.Sqrt(2);
             var norm0 = 0.5f * (float)(Math.Sqrt(1.0 / (_dctSize - 1)));
@@ -82,16 +82,16 @@ namespace NWaves.Transforms
             {
                 if ((k & 1) == 0)
                 {
-                    output[k] = (input[0] + input[input.Length - 1]) * sqrt2;
+                    output[k] = (input.Span[0] + input.Span[input.Length - 1]) * sqrt2;
                 }
                 else
                 {
-                    output[k] = (input[0] - input[input.Length - 1]) * sqrt2;
+                    output[k] = (input.Span[0] - input.Span[input.Length - 1]) * sqrt2;
                 }
 
                 for (var n = 1; n < input.Length - 1; n++)
                 {
-                    output[k] += input[n] * _dctMtx[k][n];
+                    output[k] += input.Span[n] * _dctMtx[k][n];
                 }
 
                 if (k > 0 && k < _dctSize - 1)
@@ -109,22 +109,22 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output)
+        public void Inverse(Memory<float> input, float[] output)
         {
             for (var k = 0; k < output.Length; k++)
             {
                 if ((k & 1) == 0)
                 {
-                    output[k] = (input[0] + input[input.Length - 1]);
+                    output[k] = (input.Span[0] + input.Span[input.Length - 1]);
                 }
                 else
                 {
-                    output[k] = (input[0] - input[input.Length - 1]);
+                    output[k] = (input.Span[0] - input.Span[input.Length - 1]);
                 }
 
                 for (var n = 1; n < input.Length - 1; n++)
                 {
-                    output[k] += input[n] * _dctMtx[k][n];
+                    output[k] += input.Span[n] * _dctMtx[k][n];
                 }
             }
         }
@@ -134,7 +134,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output)
+        public void InverseNorm(Memory<float> input, float[] output)
         {
             var sqrt2 = (float)Math.Sqrt(2);
             var norm0 = 0.5f * (float)(Math.Sqrt(1.0 / (_dctSize - 1)));
@@ -144,16 +144,16 @@ namespace NWaves.Transforms
             {
                 if ((k & 1) == 0)
                 {
-                    output[k] = (input[0] + input[input.Length - 1]) * sqrt2;
+                    output[k] = (input.Span[0] + input.Span[input.Length - 1]) * sqrt2;
                 }
                 else
                 {
-                    output[k] = (input[0] - input[input.Length - 1]) * sqrt2;
+                    output[k] = (input.Span[0] - input.Span[input.Length - 1]) * sqrt2;
                 }
 
                 for (var n = 1; n < input.Length - 1; n++)
                 {
-                    output[k] += input[n] * _dctMtx[k][n];
+                    output[k] += input.Span[n] * _dctMtx[k][n];
                 }
 
                 if (k > 0 && k < _dctSize - 1)

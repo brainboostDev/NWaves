@@ -19,9 +19,9 @@ namespace NWaves.Utils
         /// <param name="a">LP coefficients</param>
         /// <param name="order">Order of LPC</param>
         /// <param name="offset">Optional offset in auto-correlation vector</param>
-        public static float LevinsonDurbin(float[] input, float[] a, int order, int offset = 0)
+        public static float LevinsonDurbin(Memory<float> input, float[] a, int order, int offset = 0)
         {
-            var err = input[offset];
+            var err = input.Span[offset];
 
             a[0] = 1.0f;
 
@@ -30,7 +30,7 @@ namespace NWaves.Utils
                 var lambda = 0.0f;
                 for (var j = 0; j < i; j++)
                 {
-                    lambda -= a[j] * input[offset + i - j];
+                    lambda -= a[j] * input.Span[offset + i - j];
                 }
 
                 lambda /= err;

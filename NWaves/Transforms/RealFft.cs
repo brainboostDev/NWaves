@@ -102,14 +102,14 @@ namespace NWaves.Transforms
         /// <param name="input">Input data (real)</param>
         /// <param name="re">Output data (real parts)</param>
         /// <param name="im">Output data (imaginary parts)</param>
-        public void Direct(float[] input, float[] re, float[] im)
+        public void Direct(Memory<float> input, float[] re, float[] im)
         {
             // do half-size complex FFT:
 
             for (int i = 0, k = 0; i < _fftSize; i++)
             {
-                _re[i] = input[k++];
-                _im[i] = input[k++];
+                _re[i] = input.Span[k++];
+                _im[i] = input.Span[k++];
             }
 
             var L = _fftSize;
@@ -417,7 +417,7 @@ namespace NWaves.Transforms
         /// <param name="samples">Array of samples</param>
         /// <param name="spectrum">Magnitude spectrum</param>
         /// <param name="normalize">Normalize by FFT size or not</param>
-        public void MagnitudeSpectrum(float[] samples, float[] spectrum, bool normalize = false)
+        public void MagnitudeSpectrum(Memory<float> samples, float[] spectrum, bool normalize = false)
         {
             Direct(samples, _realSpectrum, _imagSpectrum);
 
@@ -450,7 +450,7 @@ namespace NWaves.Transforms
         /// <param name="samples">Array of samples</param>
         /// <param name="spectrum">Magnitude spectrum</param>
         /// <param name="normalize">Normalize by FFT size or not</param>
-        public void PowerSpectrum(float[] samples, float[] spectrum, bool normalize = true)
+        public void PowerSpectrum(Memory<float> samples, float[] spectrum, bool normalize = true)
         {
             Direct(samples, _realSpectrum, _imagSpectrum);
 
@@ -506,7 +506,7 @@ namespace NWaves.Transforms
         /// <summary>
         /// FFT shift in-place. Throws <see cref="ArgumentException"/> if array of <paramref name="samples"/> has odd length.
         /// </summary>
-        public static void Shift(float[] samples)
+        public static void Shift(Memory<float> samples)
         {
             if ((samples.Length & 1) == 1)
             {
@@ -518,9 +518,9 @@ namespace NWaves.Transforms
             for (var i = 0; i < samples.Length / 2; i++)
             {
                 var shift = i + mid;
-                var tmp = samples[i];
-                samples[i] = samples[shift];
-                samples[shift] = tmp;
+                var tmp = samples.Span[i];
+                samples.Span[i] = samples.Span[shift];
+                samples.Span[shift] = tmp;
             }
         }
 
@@ -535,14 +535,14 @@ namespace NWaves.Transforms
         /// <param name="input">Input data (real)</param>
         /// <param name="re">Output data (real parts)</param>
         /// <param name="im">Output data (imaginary parts)</param>
-        public void Direct(ReadOnlySpan<float> input, Span<float> re, Span<float> im)
+        public void Direct(ReadOnlyMemory<float> input, Memory<float> re, Memory<float> im)
         {
             // do half-size complex FFT:
 
             for (int i = 0, k = 0; i < _fftSize; i++)
             {
-                _re[i] = input[k++];
-                _im[i] = input[k++];
+                _re[i] = input.Span[k++];
+                _im[i] = input.Span[k++];
             }
 
             var L = _fftSize;
@@ -599,17 +599,17 @@ namespace NWaves.Transforms
 
             // do the last step:
 
-            re[0] = _re[0] * _ar[0] - _im[0] * _ai[0] + _re[0] * _br[0] + _im[0] * _bi[0];
-            im[0] = _im[0] * _ar[0] + _re[0] * _ai[0] + _re[0] * _bi[0] - _im[0] * _br[0];
+            re.Span[0] = _re[0] * _ar[0] - _im[0] * _ai[0] + _re[0] * _br[0] + _im[0] * _bi[0];
+            im.Span[0] = _im[0] * _ar[0] + _re[0] * _ai[0] + _re[0] * _bi[0] - _im[0] * _br[0];
 
             for (var k = 1; k < _fftSize; k++)
             {
-                re[k] = _re[k] * _ar[k] - _im[k] * _ai[k] + _re[_fftSize - k] * _br[k] + _im[_fftSize - k] * _bi[k];
-                im[k] = _im[k] * _ar[k] + _re[k] * _ai[k] + _re[_fftSize - k] * _bi[k] - _im[_fftSize - k] * _br[k];
+                re.Span[k] = _re[k] * _ar[k] - _im[k] * _ai[k] + _re[_fftSize - k] * _br[k] + _im[_fftSize - k] * _bi[k];
+                im.Span[k] = _im[k] * _ar[k] + _re[k] * _ai[k] + _re[_fftSize - k] * _bi[k] - _im[_fftSize - k] * _br[k];
             }
 
-            re[_fftSize] = _re[0] - _im[0];
-            im[_fftSize] = 0;
+            re.Span[_fftSize] = _re[0] - _im[0];
+            im.Span[_fftSize] = 0;
         }
 
         /// <summary>
@@ -621,14 +621,14 @@ namespace NWaves.Transforms
         /// <param name="re">Input data (real parts)</param>
         /// <param name="im">Input data (imaginary parts)</param>
         /// <param name="output">Output data (real)</param>
-        public void Inverse(ReadOnlySpan<float> re, ReadOnlySpan<float> im, Span<float> output)
+        public void Inverse(ReadOnlyMemory<float> re, ReadOnlyMemory<float> im, Memory<float> output)
         {
             // do the first step:
 
             for (var k = 0; k < _fftSize; k++)
             {
-                _re[k] = re[k] * _ar[k] + im[k] * _ai[k] + re[_fftSize - k] * _br[k] - im[_fftSize - k] * _bi[k];
-                _im[k] = im[k] * _ar[k] - re[k] * _ai[k] - re[_fftSize - k] * _bi[k] - im[_fftSize - k] * _br[k];
+                _re[k] = re.Span[k] * _ar[k] + im.Span[k] * _ai[k] + re.Span[_fftSize - k] * _br[k] - im.Span[_fftSize - k] * _bi[k];
+                _im[k] = im.Span[k] * _ar[k] - re.Span[k] * _ai[k] - re.Span[_fftSize - k] * _bi[k] - im.Span[_fftSize - k] * _br[k];
             }
 
             // do half-size complex FFT:
@@ -689,8 +689,8 @@ namespace NWaves.Transforms
 
             for (int i = 0, k = 0; i < _fftSize; i++)
             {
-                output[k++] = _re[i] * 2;
-                output[k++] = _im[i] * 2;
+                output.Span[k++] = _re[i] * 2;
+                output.Span[k++] = _im[i] * 2;
             }
         }
 
@@ -703,14 +703,14 @@ namespace NWaves.Transforms
         /// <param name="re">Input data (real parts)</param>
         /// <param name="im">Input data (imaginary parts)</param>
         /// <param name="output">Output data (real)</param>
-        public void InverseNorm(ReadOnlySpan<float> re, ReadOnlySpan<float> im, Span<float> output)
+        public void InverseNorm(ReadOnlyMemory<float> re, ReadOnlyMemory<float> im, Memory<float> output)
         {
             // do the first step:
 
             for (var k = 0; k < _fftSize; k++)
             {
-                _re[k] = re[k] * _ar[k] + im[k] * _ai[k] + re[_fftSize - k] * _br[k] - im[_fftSize - k] * _bi[k];
-                _im[k] = im[k] * _ar[k] - re[k] * _ai[k] - re[_fftSize - k] * _bi[k] - im[_fftSize - k] * _br[k];
+                _re[k] = re.Span[k] * _ar[k] + im.Span[k] * _ai[k] + re.Span[_fftSize - k] * _br[k] - im.Span[_fftSize - k] * _bi[k];
+                _im[k] = im.Span[k] * _ar[k] - re.Span[k] * _ai[k] - re.Span[_fftSize - k] * _bi[k] - im.Span[_fftSize - k] * _br[k];
             }
 
             // do half-size complex FFT:
@@ -771,8 +771,8 @@ namespace NWaves.Transforms
 
             for (int i = 0, k = 0; i < _fftSize; i++)
             {
-                output[k++] = _re[i] / _fftSize;
-                output[k++] = _im[i] / _fftSize;
+                output.Span[k++] = _re[i] / _fftSize;
+                output.Span[k++] = _im[i] / _fftSize;
             }
         }
 #endif

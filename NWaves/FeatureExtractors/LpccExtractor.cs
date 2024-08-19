@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NWaves.FeatureExtractors.Base;
 using NWaves.FeatureExtractors.Options;
@@ -79,13 +80,13 @@ namespace NWaves.FeatureExtractors
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one LPCC feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
             // The code here essentially duplicates LPC extractor code 
             // (for efficient memory usage it doesn't just delegate its work to LpcExtractor)
             // and then post-processes LPC vectors to obtain LPCC coefficients.
              
-            block.FastCopyTo(_reversed, FrameSize);
+            block.Span.FastCopyTo(_reversed, FrameSize);
 
             // 1) autocorrelation
 
@@ -105,7 +106,7 @@ namespace NWaves.FeatureExtractors
 
             if (_lifterCoeffs != null)
             {
-                features.ApplyWindow(_lifterCoeffs);
+                features.AsMemory().ApplyWindow(_lifterCoeffs);
             }
         }
 

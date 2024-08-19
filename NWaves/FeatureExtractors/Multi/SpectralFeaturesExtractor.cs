@@ -207,7 +207,7 @@ namespace NWaves.FeatureExtractors.Multi
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
             // compute and prepare spectrum
 

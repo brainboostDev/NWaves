@@ -39,10 +39,10 @@ namespace NWaves.Effects.Stereo
         /// <param name="count">Number of samples to process</param>
         /// <param name="inputPos">Input starting index</param>
         /// <param name="outputPos">Output starting index</param>
-        public virtual void Process(Memory<float> inputLeft,
-                                    Memory<float> inputRight,
-                                    Memory<float> outputLeft,
-                                    Memory<float> outputRight,
+        public virtual void Process(Span<float> inputLeft,
+                                    Span<float> inputRight,
+                                    Span<float> outputLeft,
+                                    Span<float> outputRight,
                                     int count = 0,
                                     int inputPos = 0,
                                     int outputPos = 0)
@@ -72,9 +72,9 @@ namespace NWaves.Effects.Stereo
         /// <param name="count">Number of samples to process</param>
         /// <param name="inputPos">Input starting index</param>
         /// <param name="outputPos">Output starting index</param>
-        public virtual void Process(Memory<float> input,
-                                    Memory<float> outputLeft,
-                                    Memory<float> outputRight,
+        public virtual void Process(Span<float> input,
+                                    Span<float> outputLeft,
+                                    Span<float> outputRight,
                                     int count = 0,
                                     int inputPos = 0,
                                     int outputPos = 0)

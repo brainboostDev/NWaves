@@ -54,7 +54,7 @@ namespace NWaves.FeatureExtractors
         /// <summary>
         /// Delegate for calculating spectrum.
         /// </summary>
-        protected readonly Action<float[]> _getSpectrum;
+        protected readonly Action<Memory<float>> _getSpectrum;
 
         /// <summary>
         /// Delegate for post-processing spectrum.
@@ -140,7 +140,7 @@ namespace NWaves.FeatureExtractors
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
             // 1) calculate magnitude/power spectrum (with/without normalization)
 

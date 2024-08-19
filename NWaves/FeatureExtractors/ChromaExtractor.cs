@@ -3,6 +3,7 @@ using NWaves.FeatureExtractors.Options;
 using NWaves.Filters.Fda;
 using NWaves.Transforms;
 using NWaves.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -84,7 +85,7 @@ namespace NWaves.FeatureExtractors
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one chroma feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
             _fft.PowerSpectrum(block, _spectrum, false);
 

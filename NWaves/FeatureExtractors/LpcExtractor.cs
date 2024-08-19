@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NWaves.FeatureExtractors.Base;
 using NWaves.FeatureExtractors.Options;
@@ -63,9 +64,9 @@ namespace NWaves.FeatureExtractors
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one LPC feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
-            block.FastCopyTo(_reversed, FrameSize);
+            block.Span.FastCopyTo(_reversed, FrameSize);
 
             // 1) autocorrelation
 

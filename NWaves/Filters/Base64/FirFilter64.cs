@@ -170,7 +170,7 @@ namespace NWaves.Filters.Base64
             var k = 0;
             while (k < samples.Length)
             {
-                _delayLine[_delayLineOffset] = samples[k];
+                _delayLine[_delayLineOffset] = samples.Span[k];
 
                 var output = 0.0;
 

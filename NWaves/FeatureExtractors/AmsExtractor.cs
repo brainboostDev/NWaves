@@ -181,7 +181,7 @@ namespace NWaves.FeatureExtractors
         /// <param name="samples">Array of samples</param>
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
-        public override List<float[]> ComputeFrom(float[] samples, int startSample, int endSample)
+        public override List<float[]> ComputeFrom(Memory<float> samples, int startSample, int endSample)
         {
             Guard.AgainstInvalidRange(startSample, endSample, "starting pos", "ending pos");
 
@@ -201,7 +201,7 @@ namespace NWaves.FeatureExtractors
                     _envelopes[n] = new float[samples.Length / hopSize];
                 }
 
-                var prevSample = startSample > 0 ? samples[startSample - 1] : 0.0f;
+                var prevSample = startSample > 0 ? samples.Span[startSample - 1] : 0.0f;
 
                 var lastSample = endSample - Math.Max(frameSize, hopSize);
 
@@ -210,7 +210,7 @@ namespace NWaves.FeatureExtractors
                 for (i = startSample; i < lastSample; i += hopSize)
                 {
                     // copy frameSize samples
-                    samples.FastCopyTo(_block, frameSize, i);
+                    samples.Span.FastCopyTo(_block, frameSize, i);
                     // fill zeros to fftSize if frameSize < fftSize
                     for (var k = frameSize; k < _block.Length; _block[k++] = 0) ;
 
@@ -225,14 +225,14 @@ namespace NWaves.FeatureExtractors
                             prevSample = _block[k];
                             _block[k] = y;
                         }
-                        prevSample = samples[i + hopSize - 1];
+                        prevSample = samples.Span[i + hopSize - 1];
                     }
                     
                     // 1) apply window
 
                     if (_window != WindowType.Rectangular)
                     {
-                        _block.ApplyWindow(_windowSamples);
+                        _block.AsMemory().ApplyWindow(_windowSamples);
                     }
 
                     // 2) calculate power spectrum
@@ -376,7 +376,7 @@ namespace NWaves.FeatureExtractors
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
             throw new NotImplementedException("AmsExtractor does not provide this function. Please call ComputeFrom() method");
         }
@@ -389,7 +389,7 @@ namespace NWaves.FeatureExtractors
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
         /// <param name="vectors">Pre-allocated sequence for storing the resulting feature vectors</param>
-        public override int ComputeFrom(float[] samples, int startSample, int endSample, IList<float[]> vectors)
+        public override int ComputeFrom(Memory<float> samples, int startSample, int endSample, IList<float[]> vectors)
         {
             throw new NotImplementedException("AmsExtractor does not provide this function. Please call overloaded ComputeFrom() method");
         }

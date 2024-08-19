@@ -215,7 +215,7 @@ namespace NWaves.Filters.Base
             {
                 for (var k = 0; k < _numeratorSize; k++)
                 {
-                    if (n >= k) output[n] += _b[k] * input[n - k];
+                    if (n >= k) output[n] += _b[k] * input.Span[n - k];
                 }
                 for (var m = 1; m < _denominatorSize; m++)
                 {

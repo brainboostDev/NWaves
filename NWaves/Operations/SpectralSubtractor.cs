@@ -58,7 +58,7 @@ namespace NWaves.Operations
         /// <param name="noise">Array of noise samples</param>
         /// <param name="fftSize">FFT size</param>
         /// <param name="hopSize">Hop length (number of samples)</param>
-        public SpectralSubtractor(float[] noise, int fftSize = 1024, int hopSize = 128) : base(hopSize, fftSize)
+        public SpectralSubtractor(Memory<float> noise, int fftSize = 1024, int hopSize = 128) : base(hopSize, fftSize)
         {
             _noiseEstimate = new float[_fftSize / 2 + 1];
             _noiseBuf = new float[_fftSize];
@@ -119,7 +119,7 @@ namespace NWaves.Operations
         /// <param name="noise">Array of noise samples</param>
         /// <param name="startPos">Index of the first sample in array for processing</param>
         /// <param name="endPos">Index of the last sample in array for processing</param>
-        public void EstimateNoise(float[] noise, int startPos = 0, int endPos = -1)
+        public void EstimateNoise(Memory<float> noise, int startPos = 0, int endPos = -1)
         {
             if (endPos < 0)
             {
@@ -130,7 +130,7 @@ namespace NWaves.Operations
 
             for (var pos = startPos; pos + _fftSize < endPos; pos += _hopSize, numFrames++)
             {
-                noise.FastCopyTo(_noiseBuf, _fftSize, pos);
+                noise.Span.FastCopyTo(_noiseBuf, _fftSize, pos);
 
                 _fft.PowerSpectrum(_noiseBuf, _noiseSpectrum, false);
 

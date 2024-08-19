@@ -42,7 +42,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output)
+        public void Direct(Memory<float> input, float[] output)
         {
             Array.Clear(output, 0, output.Length);
 
@@ -52,8 +52,8 @@ namespace NWaves.Transforms
 
             for (var m = 0; m < _temp.Length; m++)
             {
-                var re = input[2 * m];
-                var im = input[N - 1 - 2 * m];
+                var re = input.Span[2 * m];
+                var im = input.Span[N - 1 - 2 * m];
                 var cos = Math.Cos(Math.PI * m / N);
                 var sin = Math.Sin(-Math.PI * m / N);
 
@@ -91,7 +91,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output)
+        public void DirectNorm(Memory<float> input, float[] output)
         {
             Direct(input, output);
 
@@ -105,7 +105,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output)
+        public void Inverse(Memory<float> input, float[] output)
         {
             Direct(input, output);
         }
@@ -115,7 +115,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output)
+        public void InverseNorm(Memory<float> input, float[] output)
         {
             DirectNorm(input, output);
         }

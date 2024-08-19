@@ -62,12 +62,12 @@ namespace NWaves.Filters
 
             for (i = 0; i < Size / 2; i++)    // feed first samples
             {
-                Process(input[i]);
+                Process(input.Span[i]);
             }
 
             for (; j < input.Length - Size / 2; j++, i++)   // and begin populating output signal
             {
-                output[j] = Process(input[i]);
+                output[j] = Process(input.Span[i]);
             }
 
             for (i = 0; i < Size / 2; i++, j++)     // don't forget last samples
@@ -99,14 +99,14 @@ namespace NWaves.Filters
 
             int i = _sortedSamples.Count - 1; 
 
-            while (i >= 0 && sample < _sortedSamples[i])
+            while (i >= 0 && sample < _sortedsamples.Span[i])
             {
                 i--;
             }
 
             _sortedSamples.Insert(i + 1, sample);
 
-            return _sortedSamples[Size / 2];
+            return _sortedsamples.Span[Size / 2];
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace NWaves.Filters
         {
             _n = 0;
 
-            for (var i = 0; i < _sortedSamples.Count; _sortedSamples[i++] = 0) ;
+            for (var i = 0; i < _sortedSamples.Count; _sortedsamples.Span[i++] = 0) ;
 
             Array.Clear(_delayLine, 0, Size);
         }

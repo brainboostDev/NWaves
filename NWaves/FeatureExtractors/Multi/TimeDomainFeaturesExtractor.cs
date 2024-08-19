@@ -98,7 +98,7 @@ namespace NWaves.FeatureExtractors.Multi
         /// <param name="startSample">Index of the first sample in array for processing</param>
         /// <param name="endSample">Index of the last sample in array for processing</param>
         /// <param name="vectors">Pre-allocated sequence for storing the resulting feature vectors</param>
-        public override int ComputeFrom(float[] samples, int startSample, int endSample, IList<float[]> vectors)
+        public override int ComputeFrom(Memory<float> samples, int startSample, int endSample, IList<float[]> vectors)
         {
             var ds = new DiscreteSignal(SamplingRate, samples);
 
@@ -124,7 +124,7 @@ namespace NWaves.FeatureExtractors.Multi
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
             throw new NotImplementedException("TimeDomainFeaturesExtractor does not provide this function. Please call ComputeFrom() method");
         }

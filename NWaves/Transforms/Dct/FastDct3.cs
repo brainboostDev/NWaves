@@ -1,4 +1,6 @@
-﻿namespace NWaves.Transforms
+﻿using System;
+
+namespace NWaves.Transforms
 {
     /// <summary>
     /// Represents Discrete Cosine Transform of Type-III. 
@@ -27,27 +29,27 @@
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output) => _dct2.Inverse(input, output);
+        public void Direct(Memory<float> input, float[] output) => _dct2.Inverse(input, output);
 
         /// <summary>
         /// Does normalized DCT-III.
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output) => _dct2.InverseNorm(input, output);
+        public void DirectNorm(Memory<float> input, float[] output) => _dct2.InverseNorm(input, output);
 
         /// <summary>
         /// Does Inverse DCT-III.
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output) => _dct2.Direct(input, output);
+        public void Inverse(Memory<float> input, float[] output) => _dct2.Direct(input, output);
 
         /// <summary>
         /// Does normalized Inverse DCT-III.
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output) => _dct2.DirectNorm(input, output);
+        public void InverseNorm(Memory<float> input, float[] output) => _dct2.DirectNorm(input, output);
     }
 }

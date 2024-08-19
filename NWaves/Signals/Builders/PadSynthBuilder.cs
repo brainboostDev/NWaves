@@ -200,7 +200,7 @@ namespace NWaves.Signals.Builders
 
             var norm = 1 / _samples.Max();
 
-            for (var i = 0; i < _samples.Length; _samples[i++] *= norm) ;
+            for (var i = 0; i < _samples.Length; _samples.Span[i++] *= norm) ;
         }
 
         /// <summary>

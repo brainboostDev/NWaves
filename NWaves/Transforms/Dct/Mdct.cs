@@ -40,17 +40,17 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output)
+        public void Direct(Memory<float> input, float[] output)
         {
             int N = _dct.Size;
 
             for (int n = 0; n < N / 2; n++)
             {
-                _temp[n] = -input[3 * N / 2 - 1 - n] - input[3 * N / 2 + n];
+                _temp[n] = -input.Span[3 * N / 2 - 1 - n] - input.Span[3 * N / 2 + n];
             }
             for (int n = N / 2; n < N; n++)
             {
-                _temp[n] = input[n - N / 2] - input[3 * N / 2 - 1 - n];
+                _temp[n] = input.Span[n - N / 2] - input.Span[3 * N / 2 - 1 - n];
             }
             
             _dct.Direct(_temp, output);
@@ -63,7 +63,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output)
+        public void DirectNorm(Memory<float> input, float[] output)
         {
             Direct(input, output);
 
@@ -78,7 +78,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output)
+        public void Inverse(Memory<float> input, float[] output)
         {
             int N = _dct.Size;
 
@@ -109,7 +109,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output)
+        public void InverseNorm(Memory<float> input, float[] output)
         {
             Inverse(input, output);
 

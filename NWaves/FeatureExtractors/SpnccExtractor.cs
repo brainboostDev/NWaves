@@ -129,7 +129,7 @@ namespace NWaves.FeatureExtractors
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one SPNCC feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
             const float meanPower = 1e10f;
 
@@ -183,7 +183,7 @@ namespace NWaves.FeatureExtractors
 
             if (_includeEnergy)
             {
-                features[0] = (float)Math.Log(Math.Max(block.Sum(x => x * x), _logEnergyFloor));
+                features[0] = (float)Math.Log(Math.Max(block.Span.SquaredSum(), _logEnergyFloor));
             }
         }
 

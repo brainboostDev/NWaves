@@ -273,12 +273,12 @@ namespace NWaves.Transforms
         /// <param name="samples">Array of samples</param>
         /// <param name="spectrum">Magnitude spectrum</param>
         /// <param name="normalize">Normalize by FFT size or not</param>
-        public void MagnitudeSpectrum(float[] samples, float[] spectrum, bool normalize = false)
+        public void MagnitudeSpectrum(Memory<float> samples, float[] spectrum, bool normalize = false)
         {
             Array.Clear(_realSpectrum, 0, _fftSize);
             Array.Clear(_imagSpectrum, 0, _fftSize);
 
-            samples.FastCopyTo(_realSpectrum, Math.Min(samples.Length, _fftSize));
+            samples.Span.FastCopyTo(_realSpectrum, Math.Min(samples.Length, _fftSize));
 
             Direct(_realSpectrum, _imagSpectrum);
 
@@ -316,12 +316,12 @@ namespace NWaves.Transforms
         /// <param name="samples">Array of samples</param>
         /// <param name="spectrum">Magnitude spectrum</param>
         /// <param name="normalize">Normalize by FFT size or not</param>
-        public void PowerSpectrum(float[] samples, float[] spectrum, bool normalize = true)
+        public void PowerSpectrum(Memory<float> samples, float[] spectrum, bool normalize = true)
         {
             Array.Clear(_realSpectrum, 0, _fftSize);
             Array.Clear(_imagSpectrum, 0, _fftSize);
 
-            samples.FastCopyTo(_realSpectrum, Math.Min(samples.Length, _fftSize));
+            samples.Span.FastCopyTo(_realSpectrum, Math.Min(samples.Length, _fftSize));
 
             Direct(_realSpectrum, _imagSpectrum);
 
@@ -382,7 +382,7 @@ namespace NWaves.Transforms
         /// <summary>
         /// FFT shift in-place. Throws <see cref="ArgumentException"/> if array of <paramref name="samples"/> has odd length.
         /// </summary>
-        public static void Shift(float[] samples)
+        public static void Shift(Memory<float> samples)
         {
             if ((samples.Length & 1) == 1)
             {
@@ -394,9 +394,9 @@ namespace NWaves.Transforms
             for (var i = 0; i < samples.Length / 2; i++)
             {
                 var shift = i + mid;
-                var tmp = samples[i];
-                samples[i] = samples[shift];
-                samples[shift] = tmp;
+                var tmp = samples.Span[i];
+                samples.Span[i] = samples.Span[shift];
+                samples.Span[shift] = tmp;
             }
         }
 
@@ -527,14 +527,14 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="re">Array of real parts</param>
         /// <param name="im">Array of imaginary parts</param>
-        public void InverseNorm(Span<float> re, Span<float> im)
+        public void InverseNorm(Memory<float> re, Memory<float> im)
         {
-            Inverse(re, im);
+            Inverse(re.Span, im.Span);
 
             for (int i = 0; i < _fftSize; i++)
             {
-                re[i] /= _fftSize;
-                im[i] /= _fftSize;
+                re.Span[i] /= _fftSize;
+                im.Span[i] /= _fftSize;
             }
         }
 
@@ -546,12 +546,12 @@ namespace NWaves.Transforms
         /// <param name="inIm">Array of imaginary parts (input)</param>
         /// <param name="outRe">Array of real parts (output)</param>
         /// <param name="outIm">Array of imaginary parts (output)</param>
-        public void Direct(ReadOnlySpan<float> inRe, ReadOnlySpan<float> inIm, Span<float> outRe, Span<float> outIm)
+        public void Direct(ReadOnlyMemory<float> inRe, ReadOnlyMemory<float> inIm, Memory<float> outRe, Memory<float> outIm)
         {
             inRe.CopyTo(outRe);
             inIm.CopyTo(outIm);
 
-            Direct(outRe, outIm);
+            Direct(outRe.Span, outIm.Span);
         }
 
         /// <summary>
@@ -562,12 +562,12 @@ namespace NWaves.Transforms
         /// <param name="inIm">Array of imaginary parts (input)</param>
         /// <param name="outRe">Array of real parts (output)</param>
         /// <param name="outIm">Array of imaginary parts (output)</param>
-        public void Inverse(ReadOnlySpan<float> inRe, ReadOnlySpan<float> inIm, Span<float> outRe, Span<float> outIm)
+        public void Inverse(ReadOnlyMemory<float> inRe, ReadOnlyMemory<float> inIm, Memory<float> outRe, Memory<float> outIm)
         {
             inRe.CopyTo(outRe);
             inIm.CopyTo(outIm);
 
-            Inverse(outRe, outIm);
+            Inverse(outRe.Span, outIm.Span);
         }
 
         /// <summary>
@@ -578,7 +578,7 @@ namespace NWaves.Transforms
         /// <param name="inIm">Array of imaginary parts (input)</param>
         /// <param name="outRe">Array of real parts (output)</param>
         /// <param name="outIm">Array of imaginary parts (output)</param>
-        public void InverseNorm(ReadOnlySpan<float> inRe, ReadOnlySpan<float> inIm, Span<float> outRe, Span<float> outIm)
+        public void InverseNorm(ReadOnlyMemory<float> inRe, ReadOnlyMemory<float> inIm, Memory<float> outRe, Memory<float> outIm)
         {
             inRe.CopyTo(outRe);
             inIm.CopyTo(outIm);

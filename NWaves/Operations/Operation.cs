@@ -240,7 +240,7 @@ namespace NWaves.Operations
         {
             var envelopeFollower = new EnvelopeFollower(signal.SamplingRate, attackTime, releaseTime);
 
-            return new DiscreteSignal(signal.SamplingRate, signal.Samples.Select(s => envelopeFollower.Process(s)));
+            return new DiscreteSignal(signal.SamplingRate, signal.Samples.Span.Select(s => envelopeFollower.Process(s)).ToArray());
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace NWaves.Operations
         public static DiscreteSignal FullRectify(DiscreteSignal signal)
         {
             return new DiscreteSignal(signal.SamplingRate,
-                                      signal.Samples.Select(s => s < 0 ? -s : s));
+                                      signal.Samples.Span.Select(s => s < 0 ? -s : s).ToArray());
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace NWaves.Operations
         public static DiscreteSignal HalfRectify(DiscreteSignal signal)
         {
             return new DiscreteSignal(signal.SamplingRate,
-                                      signal.Samples.Select(s => s < 0 ? 0 : s));
+                                      signal.Samples.Span.Select(s => s < 0 ? 0 : s).ToArray());
         }
 
         /// <summary>
@@ -282,13 +282,13 @@ namespace NWaves.Operations
         /// </summary>
         /// <param name="samples">Samples</param>
         /// <param name="peakDb">Peak level in decibels (dbFS), e.g. -1dB, -3dB, etc.</param>
-        public static void NormalizePeak(float[] samples, double peakDb)
+        public static void NormalizePeak(Memory<float> samples, double peakDb)
         {
-            var norm = (float)Scale.FromDecibel(peakDb) / samples.Max(x => Math.Abs(x));
+            var norm = (float)Scale.FromDecibel(peakDb) / samples.Span.Max(x => Math.Abs(x));
 
             for (var i = 0; i < samples.Length; i++)
             {
-                samples[i] *= norm;
+                samples.Span[i] *= norm;
             }
         }
 
@@ -309,13 +309,13 @@ namespace NWaves.Operations
         /// </summary>
         /// <param name="samples">Samples</param>
         /// <param name="peakDb">Peak change in decibels, e.g. -6dB - decrease peak level twice</param>
-        public static void ChangePeak(float[] samples, double peakDb)
+        public static void ChangePeak(Memory<float> samples, double peakDb)
         {
             var norm = (float)Scale.FromDecibel(peakDb);
 
             for (var i = 0; i < samples.Length; i++)
             {
-                samples[i] *= norm;
+                samples.Span[i] *= norm;
             }
         }
 
@@ -336,20 +336,20 @@ namespace NWaves.Operations
         /// </summary>
         /// <param name="samples">Samples</param>
         /// <param name="rmsDb">RMS in decibels (dBFS), e.g. -6dB, -18dB, -26dB, etc.</param>
-        public static void NormalizeRms(float[] samples, double rmsDb)
+        public static void NormalizeRms(Memory<float> samples, double rmsDb)
         {
             var sum = 0f;
 
             for (var i = 0; i < samples.Length; i++)
             {
-                sum += samples[i] * samples[i];
+                sum += samples.Span[i] * samples.Span[i];
             }
 
             var norm = (float)Math.Sqrt(samples.Length * Math.Pow(10, rmsDb / 10) / sum);
 
             for (var i = 0; i < samples.Length; i++)
             {
-                samples[i] *= norm;
+                samples.Span[i] *= norm;
             }
         }
 
@@ -370,13 +370,13 @@ namespace NWaves.Operations
         /// </summary>
         /// <param name="samples">Samples</param>
         /// <param name="rmsDb">RMS change in decibels, e.g. -6dB - decrease RMS twice</param>
-        public static void ChangeRms(float[] samples, double rmsDb)
+        public static void ChangeRms(Memory<float> samples, double rmsDb)
         {
             var sum = 0f;
 
             for (var i = 0; i < samples.Length; i++)
             {
-                sum += samples[i] * samples[i];
+                sum += samples.Span[i] * samples.Span[i];
             }
 
             var rmsDbActual = -20 * Math.Log10(Math.Sqrt(sum / samples.Length));
@@ -387,7 +387,7 @@ namespace NWaves.Operations
             
             for (var i = 0; i < samples.Length; i++)
             {
-                samples[i] *= norm;
+                samples.Span[i] *= norm;
             }
         }
 
@@ -546,7 +546,7 @@ namespace NWaves.Operations
                 {
                     if (n >= k && n - k < a.Length)
                     {
-                        conv[n] += a[n - k] * b[k];
+                        conv[n] += a.Span[n - k] * b.Span[k];
                     }
                 }
             }
@@ -572,7 +572,7 @@ namespace NWaves.Operations
                 {
                     if (n >= k && n - k < a.Length)
                     {
-                        corr[n] += a[n - k] * b[pos];
+                        corr[n] += a.Span[n - k] * b.Span[pos];
                     }
                     pos--;
                 }

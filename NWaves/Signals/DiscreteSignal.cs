@@ -17,6 +17,18 @@ namespace NWaves.Signals
         /// </summary>
         public int SamplingRate { get; }
 
+        private float[]? _SamplesArray;
+        public float[] SamplesArray
+        {
+            get
+            {
+                if (_SamplesArray == null)
+                {
+                    _SamplesArray = Samples.ToArray();
+                }
+                return _SamplesArray;
+            }
+        }
         /// <summary>
         /// Gets real-valued array of samples.
         /// </summary>
@@ -45,7 +57,15 @@ namespace NWaves.Signals
             Guard.AgainstNonPositive(samplingRate, "Sampling rate");
 
             SamplingRate = samplingRate;
-            Samples = allocateNew ? samples.ToArray() : samples;
+            if (allocateNew)
+            {
+                _SamplesArray = samples.ToArray();
+                Samples = _SamplesArray;
+            }
+            else
+            {
+                Samples = samples;
+            }
         }
 
         /// <summary>
@@ -66,6 +86,7 @@ namespace NWaves.Signals
                 samples[i] = value;
             }
 
+            _SamplesArray = samples;
             Samples = samples;
         }
 
@@ -80,7 +101,7 @@ namespace NWaves.Signals
             Guard.AgainstNonPositive(samplingRate, "Sampling rate");
 
             SamplingRate = samplingRate;
-            
+
             var intSamples = samples.ToArray();
             var floatSamples = new float[intSamples.Length];
             for (var i = 0; i < intSamples.Length; i++)
@@ -88,6 +109,7 @@ namespace NWaves.Signals
                 floatSamples[i] = intSamples[i] / normalizeFactor;
             }
 
+            _SamplesArray = floatSamples;
             Samples = floatSamples;
         }
 
@@ -217,7 +239,7 @@ namespace NWaves.Signals
         public static DiscreteSignal operator -(DiscreteSignal s, float constant)
         {
             var samples = new float[s.Samples.Length];
-            
+
             for (var i = 0; i < samples.Length; i++)
             {
                 samples[i] = s.Samples.Span[i] - constant;
@@ -326,7 +348,7 @@ namespace NWaves.Signals
                 binCount = len;
             }
 
-            var bins = new int[binCount+1];
+            var bins = new int[binCount + 1];
 
             var min = Samples.Span[0];
             var max = Samples.Span[0];
@@ -359,7 +381,7 @@ namespace NWaves.Signals
             var entropy = 0.0;
             for (var i = 0; i < binCount; i++)
             {
-                var p = (float) bins[i] / (endPos - startPos);
+                var p = (float)bins[i] / (endPos - startPos);
 
                 if (p > 1e-8f)
                 {

@@ -75,6 +75,7 @@ namespace NWaves.Utils
             var merged = new float[source.Length + another.Length];
             Buffer.BlockCopy(source, 0, merged, 0, source.Length * _32Bits);
             Buffer.BlockCopy(another, 0, merged, source.Length * _32Bits, another.Length * _32Bits);
+
             return merged;
         }
 

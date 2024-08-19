@@ -163,28 +163,28 @@ namespace NWaves.Filters.Base
 
             var initialZi = Tf.Zi;
             var zi = initialZi.FastCopy();
-            var baseSample = 2 * input[0] - input[padLength];
+            var baseSample = 2 * input.Span[0] - input.Span[padLength];
 
             for (int i = 0; i < zi.Length; zi[i++] *= baseSample) ;
             Init(zi);
 
-            baseSample = input[0];
+            baseSample = input.Span[0];
 
             for (int k = 0, i = padLength; i > 0; k++, i--)
             {
-                edgeLeft[k] = Process(2 * baseSample - input[i]);
+                edgeLeft[k] = Process(2 * baseSample - input.Span[i]);
             }
 
             for (int i = 0; i < input.Length; i++)
             {
-                output[i] = Process(input[i]);
+                output[i] = Process(input.Span[i]);
             }
             
-            baseSample = input.Last();
+            baseSample = input.Span.Last();
 
             for (int k = 0, i = input.Length - 2; i > input.Length - 2 - padLength; k++, i--)
             {
-                edgeRight[k] = Process(2 * baseSample - input[i]);
+                edgeRight[k] = Process(2 * baseSample - input.Span[i]);
             }
 
 
@@ -284,11 +284,11 @@ namespace NWaves.Filters.Base
 
             for (var i = 0; i < output.Length; i++)
             {
-                output[i] = _b[0] * input[i] + _zi[0];
+                output[i] = _b[0] * input.Span[i] + _zi[0];
 
                 for (var j = 1; j < _zi.Length; j++)
                 {
-                    _zi[j - 1] = _b[j] * input[i] - _a[j] * output[i] + _zi[j];
+                    _zi[j - 1] = _b[j] * input.Span[i] - _a[j] * output[i] + _zi[j];
                 }
             }
 

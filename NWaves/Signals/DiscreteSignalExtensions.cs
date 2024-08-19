@@ -31,12 +31,12 @@ namespace NWaves.Signals
 
                 return new DiscreteSignal(
                                 signal.SamplingRate,
-                                signal.Samples.FastCopyFragment(length - delay, delay));
+                                signal.Samples.Span.FastCopyFragment(length - delay, delay));
             }
             
             return new DiscreteSignal(
                             signal.SamplingRate,
-                            signal.Samples.FastCopyFragment(length, destinationOffset: delay));
+                            signal.Samples.Span.FastCopyFragment(length, destinationOffset: delay));
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NWaves.Signals
 
                 for (var i = 0; i < signal2.Length; i++)
                 {
-                    superimposed[i] += signal2.Samples[i];
+                    superimposed[i] += signal2.Samples.Span[i];
                 }
             }
             else
@@ -67,7 +67,7 @@ namespace NWaves.Signals
 
                 for (var i = 0; i < signal1.Length; i++)
                 {
-                    superimposed[i] += signal1.Samples[i];
+                    superimposed[i] += signal1.Samples.Span[i];
                 }
             }
 
@@ -88,7 +88,7 @@ namespace NWaves.Signals
             var totalLength = Math.Max(signal1.Length, signal2.Length + positions.Max());
 
             DiscreteSignal superimposed = new DiscreteSignal(signal1.SamplingRate, totalLength);
-            signal1.Samples.FastCopyTo(superimposed.Samples, signal1.Length);
+            signal1.Samples.Span.FastCopyTo(superimposed.Samples.Span, signal1.Length);
 
             for (var p = 0; p < positions.Length; p++)
             {
@@ -96,7 +96,7 @@ namespace NWaves.Signals
 
                 for (var i = 0; i < signal2.Length; i++)
                 {
-                    superimposed[offset + i] += signal2.Samples[i];
+                    superimposed[offset + i] += signal2.Samples.Span[i];
                 }
             }
 
@@ -122,7 +122,7 @@ namespace NWaves.Signals
 
                 for (var i = 0; i < signal2.Length; i++)
                 {
-                    subtracted[i] -= signal2.Samples[i];
+                    subtracted[i] -= signal2.Samples.Span[i];
                 }
             }
             else
@@ -131,11 +131,11 @@ namespace NWaves.Signals
 
                 for (var i = 0; i < signal1.Length; i++)
                 {
-                    subtracted[i] = signal1.Samples[i] - signal2.Samples[i];
+                    subtracted[i] = signal1.Samples.Span[i] - signal2.Samples.Span[i];
                 }
                 for (var i = signal1.Length; i < signal2.Length; i++)
                 {
-                    subtracted[i] = -signal2.Samples[i];
+                    subtracted[i] = -signal2.Samples.Span[i];
                 }
             }
 
@@ -154,7 +154,7 @@ namespace NWaves.Signals
 
             return new DiscreteSignal(
                             signal1.SamplingRate,
-                            signal1.Samples.MergeWithArray(signal2.Samples));
+                            signal1.Samples.ToArray().MergeWithArray(signal2.Samples.ToArray()));
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace NWaves.Signals
             
             return new DiscreteSignal(
                             signal.SamplingRate,
-                            signal.Samples.RepeatArray(n));
+                            signal.Samples.Span.RepeatArray(n));
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace NWaves.Signals
         /// </summary>
         public static void Reverse(this DiscreteSignal signal)
         {
-            var samples = signal.Samples;
+            var samples = signal.Samples.Span;
 
             for (int i = 0, j = samples.Length - 1; i < samples.Length / 2; i++, j--)
             {
@@ -223,7 +223,7 @@ namespace NWaves.Signals
             
             return new DiscreteSignal(
                             signal.SamplingRate,
-                            signal.Samples.FastCopyFragment(n));
+                            signal.Samples.Span.FastCopyFragment(n));
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace NWaves.Signals
 
             return new DiscreteSignal(
                             signal.SamplingRate,
-                            signal.Samples.FastCopyFragment(n, signal.Length - n));
+                            signal.Samples.Span.FastCopyFragment(n, signal.Length - n));
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace NWaves.Signals
         /// <param name="bitsPerSample">Bit depth</param>
         public static void NormalizeMax(this DiscreteSignal signal, int bitsPerSample = 0)
         {
-            var norm = 1 / signal.Samples.Max(s => Math.Abs(s));
+            var norm = 1 / signal.Samples.Span.Max(s => Math.Abs(s));
 
             if (bitsPerSample > 0)
             {
@@ -295,7 +295,7 @@ namespace NWaves.Signals
         /// <param name="signal">Real-valued signal</param>
         public static ComplexDiscreteSignal ToComplex(this DiscreteSignal signal)
         {
-            return new ComplexDiscreteSignal(signal.SamplingRate, signal.Samples.ToDoubles());
+            return new ComplexDiscreteSignal(signal.SamplingRate, signal.Samples.ToArray().ToDoubles());
         }
 
         /// <summary>
@@ -366,8 +366,8 @@ namespace NWaves.Signals
 
             var crossfaded = new DiscreteSignal(signal1.SamplingRate, signal1.Length + signal2.Length - crossfadeSampleCount);
 
-            Array.Copy(signal1.Samples, crossfaded.Samples, signal1.Length - crossfadeSampleCount);
-            Array.Copy(signal2.Samples, crossfadeSampleCount, crossfaded.Samples, signal1.Length, signal2.Length - crossfadeSampleCount);
+            Array.Copy(signal1.SamplesArray, crossfaded.SamplesArray, signal1.Length - crossfadeSampleCount);
+            Array.Copy(signal2.SamplesArray, crossfadeSampleCount, crossfaded.SamplesArray, signal1.Length, signal2.Length - crossfadeSampleCount);
 
             var startPos = signal1.Length - crossfadeSampleCount;
 

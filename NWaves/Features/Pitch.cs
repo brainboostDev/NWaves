@@ -44,7 +44,7 @@ namespace NWaves.Features
 
             var cc = new float[fftSize];
 
-            new Convolver(fftSize).CrossCorrelate(block.Span, block.Span.FastCopy(), cc);
+            new Convolver(fftSize).CrossCorrelate(block, block.Span.FastCopy(), cc);
 
             var start = pitch1 + block.Length - 1;
             var end = Math.Min(start + pitch2, cc.Length);
@@ -194,7 +194,7 @@ namespace NWaves.Features
         /// <param name="low">Lower frequency of expected pitch range</param>
         /// <param name="high">Upper frequency of expected pitch range</param>
         /// <param name="cmdfThreshold">CMDF threshold</param>
-        public static float FromYin(float[] samples,
+        public static float FromYin(Memory<float> samples,
                                     int samplingRate,
                                     int startPos = 0,
                                     int endPos = -1,
@@ -220,7 +220,7 @@ namespace NWaves.Features
             {
                 for (var j = 0; j < length; j++)
                 {
-                    var diff = samples[j + startPos] - samples[i + j + startPos];
+                    var diff = samples.Span[j + startPos] - samples.Span[i + j + startPos];
                     cmdf[i] += diff * diff;
                 }
             }
@@ -347,12 +347,12 @@ namespace NWaves.Features
         /// <param name="samplingRate">Sampling rate</param>
         /// <param name="low">Lower frequency of expected pitch range</param>
         /// <param name="high">Upper frequency of expected pitch range</param>
-        public static float FromHss(float[] spectrum,
+        public static float FromHss(Memory<float> spectrum,
                                     int samplingRate,
                                     float low = 80/*Hz*/,
                                     float high = 400/*Hz*/)
         {
-            var sumSpectrum = spectrum.FastCopy();
+            var sumSpectrum = spectrum.Span.FastCopy();
 
             var fftSize = (spectrum.Length - 1) * 2;
 
@@ -369,7 +369,7 @@ namespace NWaves.Features
 
                 for (var k = 2; k < decimations; k++)
                 {
-                    sumSpectrum[j] += (spectrum[j * k - 1] + spectrum[j * k] + spectrum[j * k + 1]) / 3;
+                    sumSpectrum[j] += (spectrum.Span[j * k - 1] + spectrum.Span[j * k] + spectrum.Span[j * k + 1]) / 3;
                 }
 
                 if (sumSpectrum[j] > maxHss)
@@ -425,12 +425,12 @@ namespace NWaves.Features
         /// <param name="samplingRate">Sampling rate</param>
         /// <param name="low">Lower frequency of expected pitch range</param>
         /// <param name="high">Upper frequency of expected pitch range</param>
-        public static float FromHps(float[] spectrum,
+        public static float FromHps(Memory<float> spectrum,
                                     int samplingRate,
                                     float low = 80/*Hz*/,
                                     float high = 400/*Hz*/)
         {
-            var sumSpectrum = spectrum.FastCopy();
+            var sumSpectrum = spectrum.Span.FastCopy();
 
             var fftSize = (spectrum.Length - 1) * 2;
 
@@ -445,7 +445,7 @@ namespace NWaves.Features
             {
                 for (var k = 2; k < decimations; k++)
                 {
-                    sumSpectrum[j] *= (spectrum[j * k - 1] + spectrum[j * k] + spectrum[j * k + 1]) / 3;
+                    sumSpectrum[j] *= (spectrum.Span[j * k - 1] + spectrum.Span[j * k] + spectrum.Span[j * k + 1]) / 3;
                 }
 
                 if (sumSpectrum[j] > maxHps)
@@ -501,7 +501,7 @@ namespace NWaves.Features
         /// <param name="samplingRate">Sampling rate</param>
         /// <param name="low">Lower frequency of expected pitch range</param>
         /// <param name="high">Upper frequency of expected pitch range</param>
-        public static float FromSpectralPeaks(float[] spectrum,
+        public static float FromSpectralPeaks(Memory<float> spectrum,
                                               int samplingRate,
                                               float low = 80/*Hz*/,
                                               float high = 400/*Hz*/)
@@ -513,8 +513,8 @@ namespace NWaves.Features
 
             for (var k = startIdx + 1; k < endIdx; k++)
             {
-                if (spectrum[k] > spectrum[k - 1] && spectrum[k] > spectrum[k - 2] &&
-                    spectrum[k] > spectrum[k + 1] && spectrum[k] > spectrum[k + 2])
+                if (spectrum.Span[k] > spectrum.Span[k - 1] && spectrum.Span[k] > spectrum.Span[k - 2] &&
+                    spectrum.Span[k] > spectrum.Span[k + 1] && spectrum.Span[k] > spectrum.Span[k + 2])
                 {
                     return (float)k * samplingRate / fftSize;
                 }

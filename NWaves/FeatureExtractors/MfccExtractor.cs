@@ -7,6 +7,7 @@ using NWaves.Filters.Fda;
 using NWaves.Transforms;
 using NWaves.Utils;
 using NWaves.Windows;
+using NWaves.Utils;
 
 namespace NWaves.FeatureExtractors
 {
@@ -98,7 +99,7 @@ namespace NWaves.FeatureExtractors
         /// <summary>
         /// Delegate for calculating spectrum.
         /// </summary>
-        protected readonly Action<float[]> _getSpectrum;
+        protected readonly Action<Memory<float>> _getSpectrum;
 
         /// <summary>
         /// Delegate for post-processing spectrum.
@@ -226,7 +227,7 @@ namespace NWaves.FeatureExtractors
         /// </summary>
         /// <param name="block">Block of data</param>
         /// <param name="features">Features (one MFCC feature vector) computed in the block</param>
-        public override void ProcessFrame(float[] block, float[] features)
+        public override void ProcessFrame(Memory<float> block, float[] features)
         {
             // 0) base extractor applies window
 
@@ -246,14 +247,14 @@ namespace NWaves.FeatureExtractors
 
             if (_lifterCoeffs != null)
             {
-                features.ApplyWindow(_lifterCoeffs);
+                features.AsMemory().ApplyWindow(_lifterCoeffs);
             }
 
             // 5) (optional) replace first coeff with log(energy) 
 
             if (_includeEnergy)
             {
-                features[0] = (float)Math.Log(Math.Max(block.Sum(x => x * x), _logEnergyFloor));
+                features[0] = (float)Math.Log(Math.Max(block.Span.SquaredSum(), _logEnergyFloor));
             }
         }
 

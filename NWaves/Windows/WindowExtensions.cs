@@ -1,5 +1,6 @@
 ﻿using NWaves.Signals;
 using NWaves.Utils;
+using System;
 
 namespace NWaves.Windows
 {
@@ -13,11 +14,11 @@ namespace NWaves.Windows
         /// </summary>
         /// <param name="samples">Samples</param>
         /// <param name="windowSamples">Window coefficients</param>
-        public static void ApplyWindow(this float[] samples, float[] windowSamples)
+        public static void ApplyWindow(this Memory<float> samples, float[] windowSamples)
         {
             for (var k = 0; k < windowSamples.Length; k++)
             {
-                samples[k] *= windowSamples[k];
+                samples.Span[k] *= windowSamples[k];
             }
         }
 
@@ -50,7 +51,7 @@ namespace NWaves.Windows
         /// <param name="samples">Samples</param>
         /// <param name="window">Window type</param>
         /// <param name="parameters">Window parameters</param>
-        public static void ApplyWindow(this float[] samples, WindowType window, params object[] parameters)
+        public static void ApplyWindow(this Memory<float> samples, WindowType window, params object[] parameters)
         {
             var windowSamples = Window.OfType(window, samples.Length, parameters);
             samples.ApplyWindow(windowSamples);

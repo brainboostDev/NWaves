@@ -1,6 +1,7 @@
 ﻿using NWaves.Filters.Base64;
 using NWaves.Signals;
 using NWaves.Transforms;
+using NWaves.Utils;
 using System;
 using System.Linq;
 
@@ -21,7 +22,7 @@ namespace NWaves.Filters.Base
         /// <param name="inputPos">Input starting index</param>
         /// <param name="outputPos">Output starting index</param>
         public static void Process(this IOnlineFilter filter,
-                                   float[] input,
+                                   Memory<float> input,
                                    float[] output,
                                    int count = 0,
                                    int inputPos = 0,
@@ -36,7 +37,7 @@ namespace NWaves.Filters.Base
 
             for (int n = inputPos, m = outputPos; n < endPos; n++, m++)
             {
-                output[m] = filter.Process(input[n]);
+                output[m] = filter.Process(input.Span[n]);
             }
         }
 
@@ -52,7 +53,7 @@ namespace NWaves.Filters.Base
 
             for (var i = 0; i < samples.Length; i++)
             {
-                output[i] = filter.Process(samples[i]);
+                output[i] = filter.Process(samples.Span[i]);
             }
 
             return new DiscreteSignal(signal.SamplingRate, output);
@@ -87,7 +88,7 @@ namespace NWaves.Filters.Base
             
             // get impulse response
 
-            var response = unit.Samples.Select(s => filter.Process(s)).ToArray();
+            var response = unit.Samples.Span.Select(s => filter.Process(s)).ToArray();
 
             // get frequency response
 
@@ -109,8 +110,8 @@ namespace NWaves.Filters.Base
                                              DiscreteSignal signal,
                                              float gain)
         {
-            var output = signal.Samples.Select(s => gain * filter.Process(s));
-            return new DiscreteSignal(signal.SamplingRate, output);
+            var output = signal.Samples.Span.Select(s => gain * filter.Process(s));
+            return new DiscreteSignal(signal.SamplingRate, output.ToArray());
         }
 
         /// <summary>

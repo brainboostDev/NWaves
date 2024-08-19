@@ -63,7 +63,7 @@ namespace NWaves.Filters
             int i = 0;
             for (; i < input.Length; i++)
             {
-                var sample = input[i];
+                var sample = input.Span[i];
                 output[i] = b0 * sample + b1 * _prevSample;
                 _prevSample = sample;
             }

@@ -76,7 +76,7 @@ namespace NWaves.Transforms.Wavelets
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output)
+        public void Direct(Memory<float> input, float[] output)
         {
             Direct(input, output, 0);
         }
@@ -87,7 +87,7 @@ namespace NWaves.Transforms.Wavelets
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output)
+        public void DirectNorm(Memory<float> input, float[] output)
         {
             Direct(input, output, 0);
         }
@@ -97,7 +97,7 @@ namespace NWaves.Transforms.Wavelets
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output)
+        public void Inverse(Memory<float> input, float[] output)
         {
             Inverse(input, output, 0);
         }
@@ -108,7 +108,7 @@ namespace NWaves.Transforms.Wavelets
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output)
+        public void InverseNorm(Memory<float> input, float[] output)
         {
             Inverse(input, output, 0);
         }
@@ -119,7 +119,7 @@ namespace NWaves.Transforms.Wavelets
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
         /// <param name="level">FWT level</param>
-        public void Direct(float[] input, float[] output, int level)
+        public void Direct(Memory<float> input, float[] output, int level)
         {
             var maxLevel = MaxLevel(input.Length);
 
@@ -132,7 +132,7 @@ namespace NWaves.Transforms.Wavelets
                 throw new ArgumentException($"Specified level is too large for input array. Max level is {maxLevel}");
             }
 
-            input.FastCopyTo(_temp, input.Length);
+            input.Span.FastCopyTo(_temp, input.Length);
 
             bool pad = (_waveletLength / 2) % 2 == 0;  // according to MATLAB and pyWavelets implementations,
                                                        // convolution in case of db3, db5, db7, etc. runs through another samples;
@@ -172,7 +172,7 @@ namespace NWaves.Transforms.Wavelets
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
         /// <param name="level">FWT level</param>
-        public void Inverse(float[] input, float[] output, int level)
+        public void Inverse(Memory<float> input, float[] output, int level)
         {
             var maxLevel = MaxLevel(input.Length);
 
@@ -185,7 +185,7 @@ namespace NWaves.Transforms.Wavelets
                 throw new ArgumentException($"Specified level is too large for input array. Max level is {maxLevel}");
             }
 
-            input.FastCopyTo(_temp, input.Length);
+            input.Span.FastCopyTo(_temp, input.Length);
 
             bool pad = (_waveletLength / 2) % 2 == 0;
 

@@ -30,7 +30,7 @@ namespace NWaves.Signals.Builders
         /// Constructs <see cref="KarplusStrongDrumBuilder"/> from array of <paramref name="samples"/>.
         /// </summary>
         /// <param name="samples">Array of samples</param>
-        public KarplusStrongDrumBuilder(float[] samples) : base(samples)
+        public KarplusStrongDrumBuilder(Memory<float> samples) : base(samples)
         {
             Init();
         }
@@ -51,15 +51,15 @@ namespace NWaves.Signals.Builders
             {
                 if (_rand.NextDouble() < _probability)
                 {
-                    _samples[idx] = 0.5f * (_samples[idx] + _prev) * _feedback;
+                    _samples.Span[idx] = 0.5f * (_samples.Span[idx] + _prev) * _feedback;
                 }
                 else
                 {
-                    _samples[idx] = -0.5f * (_samples[idx] + _prev) * _feedback;
+                    _samples.Span[idx] = -0.5f * (_samples.Span[idx] + _prev) * _feedback;
                 }
             }
 
-            _prev = _samples[idx];
+            _prev = _samples.Span[idx];
             _n++;
 
             return _prev;

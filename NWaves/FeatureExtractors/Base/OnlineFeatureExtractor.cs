@@ -108,7 +108,7 @@ namespace NWaves.FeatureExtractors.Base
 
             // copy data to temp buffer;
             // don't touch first samples saved at previous iteration
-            data.FastCopyTo(_tempBuffer, data.Length, 0, _skippedCount);
+            data.Span.FastCopyTo(_tempBuffer, data.Length, 0, _skippedCount);
 
             var currentLength = data.Length + _skippedCount;
 
@@ -138,7 +138,7 @@ namespace NWaves.FeatureExtractors.Base
 
             if (vectorCount == 0)
             {
-                data.FastCopyTo(_tempBuffer, data.Length, 0, _skippedCount);
+                data.Span.FastCopyTo(_tempBuffer, data.Length, 0, _skippedCount);
 
                 _skippedCount += data.Length;
 

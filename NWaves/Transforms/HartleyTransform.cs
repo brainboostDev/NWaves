@@ -76,9 +76,9 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output)
+        public void Direct(Memory<float> input, float[] output)
         {
-            input.FastCopyTo(output, input.Length);
+            input.Span.FastCopyTo(output, input.Length);
             Direct(output);
         }
 
@@ -88,9 +88,9 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output)
+        public void DirectNorm(Memory<float> input, float[] output)
         {
-            input.FastCopyTo(output, input.Length);
+            input.Span.FastCopyTo(output, input.Length);
             Direct(output);
         }
 
@@ -99,9 +99,9 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output)
+        public void Inverse(Memory<float> input, float[] output)
         {
-            input.FastCopyTo(output, input.Length);
+            input.Span.FastCopyTo(output, input.Length);
             Inverse(output);
         }
 
@@ -110,9 +110,9 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output)
+        public void InverseNorm(Memory<float> input, float[] output)
         {
-            input.FastCopyTo(output, input.Length);
+            input.Span.FastCopyTo(output, input.Length);
             InverseNorm(output);
         }
     }

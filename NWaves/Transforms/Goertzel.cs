@@ -28,7 +28,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input array of samples</param>
         /// <param name="n">Number of the frequency component</param>
-        public Complex Direct(float[] input, int n)
+        public Complex Direct(Memory<float> input, int n)
         {
             var f = (float)(2 * Math.Cos(2 * Math.PI * n / _fftSize));
 
@@ -36,7 +36,7 @@ namespace NWaves.Transforms
 
             for (var i = 0; i < _fftSize; i++)
             {
-                s = input[i] + s1 * f - s2;
+                s = input.Span[i] + s1 * f - s2;
 
                 s2 = s1;
                 s1 = s;

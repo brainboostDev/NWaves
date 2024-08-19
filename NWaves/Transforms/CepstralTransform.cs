@@ -84,12 +84,12 @@ namespace NWaves.Transforms
         /// <param name="cepstrum">Complex cepstrum</param>
         /// <param name="normalize">Normalize cepstrum by FFT size</param>
         /// <returns>Circular delay (number of samples) added to <paramref name="input"/></returns>
-        public double ComplexCepstrum(float[] input, float[] cepstrum, bool normalize = true)
+        public double ComplexCepstrum(Memory<float> input, float[] cepstrum, bool normalize = true)
         {
             Array.Clear(_re, 0, _re.Length);
             Array.Clear(_im, 0, _im.Length);
 
-            input.FastCopyTo(_re, input.Length);
+            input.Span.FastCopyTo(_re, input.Length);
 
             // complex fft
 
@@ -162,12 +162,12 @@ namespace NWaves.Transforms
         /// <param name="cepstrum">Inverse complex cepstrum</param>
         /// <param name="normalize">Normalize result by FFT size</param>
         /// <param name="delay">Delay (usually, returned by function <see cref="ComplexCepstrum(float[], float[], bool)"/>)</param>
-        public void InverseComplexCepstrum(float[] input, float[] cepstrum, bool normalize = true, double delay = 0)
+        public void InverseComplexCepstrum(Memory<float> input, float[] cepstrum, bool normalize = true, double delay = 0)
         {
             Array.Clear(_re, 0, _re.Length);
             Array.Clear(_im, 0, _im.Length);
 
-            input.FastCopyTo(_re, input.Length);
+            input.Span.FastCopyTo(_re, input.Length);
 
             // complex fft
 
@@ -212,12 +212,12 @@ namespace NWaves.Transforms
         /// <param name="input">Input data</param>
         /// <param name="cepstrum">Real cesptrum</param>
         /// <param name="normalize">Normalize cepstrum by FFT size</param>
-        public void RealCepstrum(float[] input, float[] cepstrum, bool normalize = true)
+        public void RealCepstrum(Memory<float> input, float[] cepstrum, bool normalize = true)
         {
             Array.Clear(_re, 0, _re.Length);
             Array.Clear(_im, 0, _im.Length);
 
-            input.FastCopyTo(_re, input.Length);
+            input.Span.FastCopyTo(_re, input.Length);
 
             // complex fft
 
@@ -259,7 +259,7 @@ namespace NWaves.Transforms
         /// <param name="input"></param>
         /// <param name="cepstrum"></param>
         /// <param name="normalize"></param>
-        public void PowerCepstrum(float[] input, float[] cepstrum, bool normalize = true)
+        public void PowerCepstrum(Memory<float> input, float[] cepstrum, bool normalize = true)
         {
             RealCepstrum(input, cepstrum, normalize);
 
@@ -280,7 +280,7 @@ namespace NWaves.Transforms
         /// <param name="input">Input data</param>
         /// <param name="cepstrum">Phase cepstrum</param>
         /// <param name="normalize">Normalize cepstrum by FFT size</param>
-        public void PhaseCepstrum(float[] input, float[] cepstrum, bool normalize = true)
+        public void PhaseCepstrum(Memory<float> input, float[] cepstrum, bool normalize = true)
         {
             ComplexCepstrum(input, cepstrum, normalize);
 
@@ -301,7 +301,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output) => ComplexCepstrum(input, output, false);
+        public void Direct(Memory<float> input, float[] output) => ComplexCepstrum(input, output, false);
 
         /// <summary>
         /// Does normalized cepstral transform. 
@@ -309,7 +309,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output) => ComplexCepstrum(input, output);
+        public void DirectNorm(Memory<float> input, float[] output) => ComplexCepstrum(input, output);
 
         /// <summary>
         /// Does inverse cepstral transform. 
@@ -317,7 +317,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output) => InverseComplexCepstrum(input, output, false);
+        public void Inverse(Memory<float> input, float[] output) => InverseComplexCepstrum(input, output, false);
 
         /// <summary>
         /// Does normalized inverse cepstral transform. 
@@ -325,6 +325,6 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output) => InverseComplexCepstrum(input, output);
+        public void InverseNorm(Memory<float> input, float[] output) => InverseComplexCepstrum(input, output);
     }
 }

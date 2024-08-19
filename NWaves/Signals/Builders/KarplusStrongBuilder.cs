@@ -44,7 +44,7 @@ namespace NWaves.Signals.Builders
         /// Constructs <see cref="KarplusStrongBuilder"/> from array of <paramref name="samples"/>.
         /// </summary>
         /// <param name="samples">Array of samples</param>
-        public KarplusStrongBuilder(float[] samples) : base(samples)
+        public KarplusStrongBuilder(Memory<float> samples) : base(samples)
         {
             Init();
         }
@@ -88,10 +88,10 @@ namespace NWaves.Signals.Builders
 
             if (_rand.NextDouble() < 1 / _stretchFactor)
             {
-                _samples[idx] = 0.5f * (_samples[idx] + _prev) * _feedback;
+                _samples.Span[idx] = 0.5f * (_samples.Span[idx] + _prev) * _feedback;
             }
 
-            _prev = _samples[idx];
+            _prev = _samples.Span[idx];
             _n++;
 
             return _prev;
@@ -106,7 +106,7 @@ namespace NWaves.Signals.Builders
 
             for (var i = 0; i < _samples.Length; i++)
             {
-                _samples[i] = values[_rand.Next(2)];
+                _samples.Span[i] = values[_rand.Next(2)];
             }
 
             base.Reset();

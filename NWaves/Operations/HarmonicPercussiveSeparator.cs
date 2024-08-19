@@ -80,7 +80,7 @@ namespace NWaves.Operations
 
             // median filtering along frequency axis:
 
-            var percussiveMagnitudes = new List<float[]>(harmonicMagnitudes.Count);
+            var percussiveMagnitudes = new List<Memory<float>>(harmonicMagnitudes.Count);
 
             for (var i = 0; i < harmonicMagnitudes.Count; i++)
             {
@@ -97,23 +97,23 @@ namespace NWaves.Operations
 
                 for (; k < _medianHarmonic.Size / 2; k++)    // feed first Size/2 samples
                 {
-                    _medianHarmonic.Process(harmonicMagnitudes[k][j]);
+                    _medianHarmonic.Process(harmonicMagnitudes[k].Span[j]);
                 }
 
                 for (; i < harmonicMagnitudes.Count - _medianHarmonic.Size / 2; i++, k++)
                 {
-                    var h = _medianHarmonic.Process(harmonicMagnitudes[k][j]);
+                    var h = _medianHarmonic.Process(harmonicMagnitudes[k].Span[j]);
 
-                    harmonicMagnitudes[i][j] *= _mask(h, percussiveMagnitudes[k][j]);
-                    percussiveMagnitudes[i][j] *= _mask(percussiveMagnitudes[k][j], h);
+                    harmonicMagnitudes[i].Span[j] *= _mask(h, percussiveMagnitudes[k].Span[j]);
+                    percussiveMagnitudes[i].Span[j] *= _mask(percussiveMagnitudes[k].Span[j], h);
                 }
 
                 for (k = 0; k < _medianHarmonic.Size / 2; i++, k++)     // don't forget last samples
                 {
                     var h = _medianHarmonic.Process(0);
 
-                    harmonicMagnitudes[i][j] *= _mask(h, percussiveMagnitudes[i][j]);
-                    percussiveMagnitudes[i][j] *= _mask(percussiveMagnitudes[i][j], h);
+                    harmonicMagnitudes[i].Span[j] *= _mask(h, percussiveMagnitudes[i].Span[j]);
+                    percussiveMagnitudes[i].Span[j] *= _mask(percussiveMagnitudes[i].Span[j], h);
                 }
 
                 _medianHarmonic.Reset();

@@ -45,7 +45,7 @@ namespace NWaves.Transforms
         /// Computes complex analytic signal (real and imaginary parts) from <paramref name="input"/>.
         /// </summary>
         /// <param name="input">Input data</param>
-        public ComplexDiscreteSignal AnalyticSignal(float[] input)
+        public ComplexDiscreteSignal AnalyticSignal(Memory<float> input)
         {
             Direct(input, _im);
 
@@ -63,7 +63,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output)
+        public void Direct(Memory<float> input, float[] output)
         {
             // just here, for code brevity, use alias _im for output (i.e. it's not internal _im)
             var _im = output;
@@ -71,7 +71,7 @@ namespace NWaves.Transforms
             Array.Clear(_re, 0, _re.Length);
             Array.Clear(_im, 0, _im.Length);
 
-            input.FastCopyTo(_re, input.Length);
+            input.Span.FastCopyTo(_re, input.Length);
 
             _fft.Direct(_re, _im);
 
@@ -95,7 +95,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output)
+        public void DirectNorm(Memory<float> input, float[] output)
         {
             Direct(input, output);
 
@@ -110,7 +110,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output)
+        public void Inverse(Memory<float> input, float[] output)
         {
             Direct(input, output);
 
@@ -125,7 +125,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output)
+        public void InverseNorm(Memory<float> input, float[] output)
         {
             DirectNorm(input, output);
 

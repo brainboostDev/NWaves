@@ -48,12 +48,12 @@ namespace NWaves.Filters
 
             for (i = 0; i < Size / 2; i++)    // feed first samples
             {
-                Process(input[i]);
+                Process(input.Span[i]);
             }
 
             for (; j < input.Length - Size / 2; j++, i++)   // and begin populating output signal
             {
-                output[j] = Process(input[i]);
+                output[j] = Process(input.Span[i]);
             }
 
             for (i = 0; i < Size / 2; i++, j++)     // don't forget last samples

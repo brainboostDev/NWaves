@@ -166,13 +166,13 @@ namespace NWaves.Operations.Tsm
 
                 if (posAnalysis > _maxDelta / 2)
                 {
-                    input.FastCopyTo(current, _windowSize + _maxDelta, posAnalysis - _maxDelta / 2);
+                    input.Span.FastCopyTo(current, _windowSize + _maxDelta, posAnalysis - _maxDelta / 2);
 
                     delta = WaveformSimilarityPos(current, prev, _maxDelta);
                 }
                 else
                 {
-                    input.FastCopyTo(current, _windowSize + _maxDelta, posAnalysis);
+                    input.Span.FastCopyTo(current, _windowSize + _maxDelta, posAnalysis);
                 }
 
                 int size = Math.Min(_windowSize, output.Length - posSynthesis);
@@ -187,7 +187,7 @@ namespace NWaves.Operations.Tsm
                     output[posSynthesis + j] *= gain;
                 }
 
-                input.FastCopyTo(prev, _windowSize, posAnalysis + delta - _maxDelta / 2 + _hopSynthesis);
+                input.Span.FastCopyTo(prev, _windowSize, posAnalysis + delta - _maxDelta / 2 + _hopSynthesis);
             }
 
             return new DiscreteSignal(signal.SamplingRate, output);

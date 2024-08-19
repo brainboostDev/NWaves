@@ -126,7 +126,7 @@ namespace NWaves.Signals
             
             for (var i = 0; i < intSamples.Length; i++)
             {
-                realSamples[i] = intSamples[i] / normalizeFactor;
+                realsamples.Span[i] = intsamples.Span[i] / normalizeFactor;
             }
 
             Real = realSamples;

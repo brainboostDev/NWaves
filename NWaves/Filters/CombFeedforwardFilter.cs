@@ -95,15 +95,15 @@ namespace NWaves.Filters
 
             for (; i < _delay; i++)
             {
-                output[i] = b0 * input[i];
+                output[i] = b0 * input.Span[i];
             }
             for (; i < signal.Length; i++, j++)
             {
-                output[i] = b0 * input[i] + bm * input[j];
+                output[i] = b0 * input.Span[i] + bm * input.Span[j];
             }
             for (; i < output.Length; i++, j++)
             {
-                output[i] = bm * input[j];
+                output[i] = bm * input.Span[j];
             }
 
             return new DiscreteSignal(signal.SamplingRate, output);

@@ -96,7 +96,7 @@ According to NWaves architecture, there are following general reusable building 
 ```C#
 // Create signal from samples repeated 100 times
 
-float[] samples = new [] { 0.5f, 0.2f, -0.3f, 1.2f, 1.6f, -1.8f, 0.3f, -0.2f };
+Memory<float> samples = new [] { 0.5f, 0.2f, -0.3f, 1.2f, 1.6f, -1.8f, 0.3f, -0.2f };
 
 var s = new DiscreteSignal(8000, samples).Repeat(100);
 

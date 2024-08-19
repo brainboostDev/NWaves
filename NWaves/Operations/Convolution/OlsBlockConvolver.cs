@@ -57,7 +57,7 @@ namespace NWaves.Operations.Convolution
         /// <summary>
         /// Constructs <see cref="OlsBlockConvolver"/> with given <paramref name="kernel"/> and <paramref name="fftSize"/>.
         /// </summary>
-        public OlsBlockConvolver(IEnumerable<float> kernel, int fftSize)
+        public OlsBlockConvolver(Memory<float> kernel, int fftSize)
         {
             _kernel = kernel.ToArray();
 

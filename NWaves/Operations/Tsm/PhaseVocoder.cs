@@ -114,7 +114,7 @@ namespace NWaves.Operations.Tsm
             var posSynthesis = 0;
             for (var posAnalysis = 0; posAnalysis + _fftSize < input.Length; posAnalysis += _hopAnalysis)
             {
-                input.FastCopyTo(_re, _fftSize, posAnalysis);
+                input.Span.FastCopyTo(_re, _fftSize, posAnalysis);
 
                 // analysis ==================================================
 

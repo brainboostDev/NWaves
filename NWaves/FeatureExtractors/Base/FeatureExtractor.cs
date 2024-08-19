@@ -150,7 +150,7 @@ namespace NWaves.FeatureExtractors.Base
 
             var frameSize = FrameSize;
             var hopSize = HopSize;
-            var prevSample = startSample > 0 ? samples[startSample - 1] : 0f;
+            var prevSample = startSample > 0 ? samples.Span[startSample - 1] : 0f;
             var lastSample = endSample - frameSize;
 
             var block = new float[_blockSize];
@@ -172,7 +172,7 @@ namespace NWaves.FeatureExtractors.Base
             {
                 // prepare new block for processing ======================================================
 
-                samples.FastCopyTo(block, frameSize, sample);  // copy FrameSize samples to 'block' buffer
+                samples.Span.FastCopyTo(block, frameSize, sample);  // copy FrameSize samples to 'block' buffer
                 
 
                 for (var k = frameSize; k < block.Length; block[k++] = 0) { }    // pad zeros to blockSize
@@ -188,14 +188,14 @@ namespace NWaves.FeatureExtractors.Base
                         prevSample = block[k];
                         block[k] = y;
                     }
-                    prevSample = samples[sample + hopSize - 1];
+                    prevSample = samples.Span[sample + hopSize - 1];
                 }
 
                 // (optionally) apply window
 
                 if (_windowSamples != null)
                 {
-                    block.ApplyWindow(_windowSamples);
+                    block.AsMemory().ApplyWindow(_windowSamples);
                 }
 
 
@@ -288,7 +288,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="endSample">Index of the last sample (exclusive) in signal for processing</param>
         public List<float[]> ComputeFrom(DiscreteSignal signal, int startSample, int endSample)
         {
-            return ComputeFrom(signal.Samples.Span, startSample, endSample);
+            return ComputeFrom(signal.Samples, startSample, endSample);
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="signal">Discrete signal</param>
         public List<float[]> ComputeFrom(DiscreteSignal signal)
         {
-            return ComputeFrom(signal.Samples.Span, 0, signal.Length);
+            return ComputeFrom(signal.Samples, 0, signal.Length);
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="parallelThreads">Number of threads (all available processors, by default)</param>
         public List<float[]> ParallelComputeFrom(DiscreteSignal signal, int startSample, int endSample, int parallelThreads = 0)
         {
-            return ParallelComputeFrom(signal.Samples.Span, startSample, endSample, parallelThreads);
+            return ParallelComputeFrom(signal.Samples, startSample, endSample, parallelThreads);
         }
 
         /// <summary>
@@ -434,7 +434,7 @@ namespace NWaves.FeatureExtractors.Base
         /// <param name="parallelThreads">Number of threads (all available processors, by default)</param>
         public List<float[]> ParallelComputeFrom(DiscreteSignal signal, int parallelThreads = 0)
         {
-            return ParallelComputeFrom(signal.Samples.Span, 0, signal.Length, parallelThreads);
+            return ParallelComputeFrom(signal.Samples, 0, signal.Length, parallelThreads);
         }
 
         #endregion

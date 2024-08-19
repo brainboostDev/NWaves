@@ -38,14 +38,14 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Direct(float[] input, float[] output)
+        public void Direct(Memory<float> input, float[] output)
         {
             Array.Clear(output, 0, output.Length);
 
             for (int m = 0; m < _temp.Length / 2; m++)
             {
-                _temp[m] = input[2 * m];
-                _temp[_temp.Length - 1 - m] = input[2 * m + 1];
+                _temp[m] = input.Span[2 * m];
+                _temp[_temp.Length - 1 - m] = input.Span[2 * m + 1];
             }
 
             _fft.Direct(_temp, output);
@@ -64,14 +64,14 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void DirectNorm(float[] input, float[] output)
+        public void DirectNorm(Memory<float> input, float[] output)
         {
             Array.Clear(output, 0, output.Length);
 
             for (int m = 0; m < _temp.Length / 2; m++)
             {
-                _temp[m] = input[2 * m];
-                _temp[_temp.Length - 1 - m] = input[2 * m + 1];
+                _temp[m] = input.Span[2 * m];
+                _temp[_temp.Length - 1 - m] = input.Span[2 * m + 1];
             }
 
             _fft.Direct(_temp, output);
@@ -94,15 +94,15 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void Inverse(float[] input, float[] output)
+        public void Inverse(Memory<float> input, float[] output)
         {
             // multiply by exp(j * pi * n / 2N):
 
             int N = _fft.Size;
             for (int i = 0; i < N; i++)
             {
-                _temp[i] = (float)(input[i] * Math.Cos(0.5 * Math.PI * i / N));
-                output[i] = (float)(input[i] * Math.Sin(0.5 * Math.PI * i / N));
+                _temp[i] = (float)(input.Span[i] * Math.Cos(0.5 * Math.PI * i / N));
+                output[i] = (float)(input.Span[i] * Math.Sin(0.5 * Math.PI * i / N));
             }
             _temp[0] *= 0.5f;
             output[0] *= 0.5f;
@@ -121,7 +121,7 @@ namespace NWaves.Transforms
         /// </summary>
         /// <param name="input">Input data</param>
         /// <param name="output">Output data</param>
-        public void InverseNorm(float[] input, float[] output)
+        public void InverseNorm(Memory<float> input, float[] output)
         {
             Inverse(input, output);
 
@@ -130,7 +130,7 @@ namespace NWaves.Transforms
 
             for (var i = 0; i < output.Length; i++)
             {
-                output[i] = (output[i] - input[0]) * norm + input[0] * norm0;
+                output[i] = (output[i] - input.Span[0]) * norm + input.Span[0] * norm0;
             }
         }
     }

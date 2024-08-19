@@ -455,7 +455,7 @@ namespace NWaves.Audio
                     {
                         for (var j = 0; j < Signals.Count; j++)
                         {
-                            sumSamples[i] += Signals[j][i];
+                            sumsamples.Span[i] += Signals[j][i];
                         }
                     }
 
@@ -472,9 +472,9 @@ namespace NWaves.Audio
                     {
                         for (var j = 0; j < Signals.Count; j++)
                         {
-                            avgSamples[i] += Signals[j][i];
+                            avgsamples.Span[i] += Signals[j][i];
                         }
-                        avgSamples[i] /= Signals.Count;
+                        avgsamples.Span[i] /= Signals.Count;
                     }
 
                     return new DiscreteSignal(WaveFmt.SamplingRate, avgSamples);
@@ -489,7 +489,7 @@ namespace NWaves.Audio
                 {
                     for (var j = 0; j < WaveFmt.ChannelCount; j++)
                     {
-                        samples[idx++] = Signals[j][i];
+                        samples.Span[idx++] = Signals[j][i];
                     }
                 }
 

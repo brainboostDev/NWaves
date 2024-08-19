@@ -111,13 +111,13 @@ namespace NWaves.Benchmarks
         [Benchmark]
         public void ComplexFftSpan()
         {
-            Span<float> re = stackalloc float[FrameSize];
-            Span<float> im = stackalloc float[FrameSize];
-            ReadOnlySpan<float> imInput = stackalloc float[FrameSize];
+            Memory<float> re = new float[FrameSize].AsMemory();
+            Memory<float> im = new float[FrameSize].AsMemory();
+            ReadOnlyMemory<float> imInput = new float[FrameSize].AsMemory();
 
             for (var i = 0; i < N - FrameSize; i += HopSize)
             {
-                var reInput = _samples.AsSpan(i, FrameSize);
+                var reInput = _samples.AsMemory(i, FrameSize);
                 // var input = new ReadOnlySpan<float>(_samples, i, FrameSize);
 
                 _complexFft.Direct(reInput, imInput, re, im);
